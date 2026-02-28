@@ -1,4 +1,4 @@
-import Stripe from 'stripe';
+
 
 // Verify Stripe webhook signature using the raw body and secret.
 // Workers don't have Node's crypto, but Stripe's SDK handles this via SubtleCrypto.

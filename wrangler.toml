@@ -19,3 +19,6 @@ CLERK_PUBLISHABLE_KEY = "pk_test_c2tpbGxlZC1za3lsYXJrLTc4LmNsZXJrLmFjY291bnRzLmR
 # STRIPE_CHURCH_PRICE_ID
 # ELEVENLABS_API_KEY
 # ELEVENLABS_AGENT_ID
+
+[build]
+command = "npm install"

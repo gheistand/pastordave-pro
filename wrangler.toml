@@ -1,0 +1,20 @@
+name = "pastordave-pro"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pastordave-pro"
+database_id = "ce99918c-841f-4998-9139-1dd4a41c9a5e"
+
+[vars]
+CLERK_PUBLISHABLE_KEY = "pk_test_c2tpbGxlZC1za3lsYXJrLTc4LmNsZXJrLmFjY291bnRzLmRldiQ"
+
+# Secrets — set via: wrangler pages secret put <NAME>
+# CLERK_SECRET_KEY
+# STRIPE_SECRET_KEY
+# STRIPE_WEBHOOK_SECRET
+# STRIPE_PRO_PRICE_ID
+# STRIPE_CHURCH_PRICE_ID
+# ELEVENLABS_API_KEY
+# ELEVENLABS_AGENT_ID

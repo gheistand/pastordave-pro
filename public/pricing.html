@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pricing — Pastor Dave Pro</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8f5f0;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 0.75rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      border-bottom: 1px solid #e5e0d8;
+    }
+
+    .logo { font-size: 1.1rem; font-weight: 700; color: #7c4f2a; }
+    .logo a { color: inherit; text-decoration: none; }
+
+    nav { display: flex; gap: 1.5rem; align-items: center; }
+    nav a { color: #7c4f2a; text-decoration: none; font-size: 0.9rem; }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1.5rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #7c4f2a;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 3rem;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    #checkout-error {
+      display: none;
+      background: #f8d7da;
+      color: #842029;
+      border: 1px solid #f5c2c7;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      max-width: 860px;
+      width: 100%;
+    }
+
+    .plan-card {
+      background: #fff;
+      border: 2px solid #e5e0d8;
+      border-radius: 12px;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .plan-card.featured {
+      border-color: #7c4f2a;
+    }
+
+    .plan-card.current-plan {
+      border-color: #198754;
+    }
+
+    .current-plan-badge {
+      display: inline-block;
+      background: #198754;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      margin-bottom: 0.25rem;
+    }
+
+    .featured-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #7c4f2a;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.75rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .plan-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #7c4f2a;
+    }
+
+    .plan-price {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #1a1a1a;
+    }
+
+    .plan-price span {
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: #888;
+    }
+
+    .plan-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .plan-features li {
+      font-size: 0.92rem;
+      color: #444;
+      padding-left: 1.4rem;
+      position: relative;
+      line-height: 1.45;
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #7c4f2a;
+      font-weight: 700;
+    }
+
+    .plan-features li.coming-soon {
+      color: #aaa;
+    }
+
+    .plan-features li.coming-soon::before {
+      content: '○';
+      color: #ccc;
+    }
+
+    .plan-btn {
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid #7c4f2a;
+      transition: background 0.15s, color 0.15s;
+      text-align: center;
+    }
+
+    .plan-btn.primary {
+      background: #7c4f2a;
+      color: #fff;
+    }
+
+    .plan-btn.primary:hover:not(:disabled) { background: #5e3a1e; }
+
+    .plan-btn.secondary {
+      background: transparent;
+      color: #7c4f2a;
+    }
+
+    .plan-btn.secondary:hover:not(:disabled) {
+      background: #f8f5f0;
+    }
+
+    .plan-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      border-color: #aaa;
+      color: #aaa;
+      background: #f5f5f5;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.8rem;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="logo"><a href="/index.html">Pastor Dave Pro</a></span>
+    <nav>
+      <a href="/app.html">App</a>
+      <div id="user-button"></div>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Simple, transparent pricing</h1>
+    <p class="subtitle">Start free. Upgrade when you're ready.</p>
+
+    <div id="checkout-error"></div>
+
+    <div class="plans">
+      <!-- Free -->
+      <div class="plan-card" id="card-free">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">$0 <span>/ month</span></div>
+        <ul class="plan-features">
+          <li>2 conversations per day</li>
+          <li>Full theological Q&amp;A</li>
+          <li>Evangelism practice</li>
+        </ul>
+        <a href="/app.html" class="plan-btn secondary">Get Started</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="plan-card featured" id="card-pro">
+        <div class="featured-badge">Most Popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">$8 <span>/ month</span></div>
+        <ul class="plan-features">
+          <li>Unlimited conversations</li>
+          <li>Full theological Q&amp;A</li>
+          <li>Evangelism practice</li>
+          <li class="coming-soon">Conversation history (coming soon)</li>
+          <li class="coming-soon">Custom focus areas (coming soon)</li>
+        </ul>
+        <button id="btn-get-pro" class="plan-btn primary">Get Pro</button>
+      </div>
+
+      <!-- Church -->
+      <div class="plan-card" id="card-church">
+        <div class="plan-name">Church</div>
+        <div class="plan-price">$39 <span>/ month</span></div>
+        <ul class="plan-features">
+          <li>Everything in Pro</li>
+          <li>Single license covers your whole congregation</li>
+          <li>Perfect for discipleship &amp; evangelism teams</li>
+          <li class="coming-soon">Team management dashboard (coming soon)</li>
+        </ul>
+        <button id="btn-get-church" class="plan-btn secondary">Get Church Plan</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Pastor Dave Pro &mdash; Questions? <a href="mailto:support@askpastordave.org">support@askpastordave.org</a>
+  </footer>
+
+  <!-- Clerk browser SDK -->
+  <script>window.CLERK_PUBLISHABLE_KEY = 'pk_test_c2tpbGxlZC1za3lsYXJrLTc4LmNsZXJrLmFjY291bnRzLmRldiQ';</script>
+  <script
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_c2tpbGxlZC1za3lsYXJrLTc4LmNsZXJrLmFjY291bnRzLmRldiQ"
+    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+    type="text/javascript"
+  ></script>
+
+  <script src="/src/auth.js"></script>
+  <script src="/src/pricing.js"></script>
+</body>
+</html>

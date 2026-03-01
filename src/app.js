@@ -260,6 +260,7 @@ async function startElevenLabsConversation(signedUrl, container, startBtn) {
 }
 
 async function playAudioChunk(audioContext, audioData) {
+  if (!audioData || audioData.byteLength === 0) return;
   try {
     // Try decoding as standard audio format first
     const audioBuffer = await audioContext.decodeAudioData(audioData.buffer.slice(0));

@@ -1,8 +1,8 @@
 // app.js — logic for app.html (authenticated app page)
 
-document.addEventListener('DOMContentLoaded', async () => {
-  // Wait for Clerk to finish loading (auth.js calls Clerk.load())
-  await window.Clerk.load();
+(async () => {
+  // Wait for auth.js to finish initializing Clerk
+  await window.PastorDaveAuth.clerkReady;
 
   // 1. Redirect if not signed in
   if (!window.Clerk.user) {
@@ -21,9 +21,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (params.get('upgraded') === 'true') {
     const banner = document.getElementById('upgrade-banner');
     if (banner) {
-      banner.textContent = 'You\'ve upgraded to Pro! Unlimited conversations unlocked.';
+      banner.textContent = "You've upgraded to Pro! Unlimited conversations unlocked.";
       banner.style.display = 'block';
-      // Clean the URL without reloading
       window.history.replaceState({}, '', '/app.html');
     }
   }
@@ -36,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (startBtn) {
     startBtn.addEventListener('click', startConversation);
   }
-});
+})();
 
 async function loadSubscriptionStatus() {
   const statusBar = document.getElementById('status-bar');
@@ -77,7 +76,6 @@ async function startConversation() {
   const startBtn = document.getElementById('start-btn');
   const limitMsg = document.getElementById('limit-message');
   const widgetContainer = document.getElementById('widget-container');
-  const statusBar = document.getElementById('status-bar');
 
   if (startBtn) startBtn.disabled = true;
   if (limitMsg) limitMsg.style.display = 'none';
@@ -107,13 +105,10 @@ async function startConversation() {
 
     const { signed_url } = await res.json();
 
-    // Initialize ElevenLabs widget with signed URL
     initElevenLabsWidget(signed_url, widgetContainer);
 
-    // Hide start button — conversation is live
     if (startBtn) startBtn.style.display = 'none';
 
-    // Refresh subscription status to reflect updated usage count
     await loadSubscriptionStatus();
   } catch (err) {
     console.error('Failed to start conversation:', err);
@@ -127,13 +122,8 @@ async function startConversation() {
 }
 
 function initElevenLabsWidget(signedUrl, container) {
-  // ElevenLabs ConvAI widget initialized programmatically.
-  // The <script src="https://elevenlabs.io/convai-widget/index.js"> tag in
-  // app.html registers the custom element <elevenlabs-convai>.
   if (!container) return;
-
   container.innerHTML = '';
-
   const widget = document.createElement('elevenlabs-convai');
   widget.setAttribute('signed-url', signedUrl);
   container.appendChild(widget);

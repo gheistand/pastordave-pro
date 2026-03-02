@@ -131,6 +131,20 @@ async function startElevenLabsConversation(signedUrl, container, startBtn) {
   var conversation;
 
   try {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('SDK: Microphone access granted');
+    } catch (micErr) {
+      console.error('SDK: Microphone access denied:', micErr);
+      statusEl.textContent = 'Microphone access is required. Please allow mic access and try again.';
+      statusEl.style.color = '#842029';
+      if (startBtn) {
+        startBtn.style.display = 'inline-block';
+        startBtn.disabled = false;
+      }
+      return;
+    }
+
     console.log('SDK: calling startSession with signedUrl');
     conversation = await window.client.Conversation.startSession({
       signedUrl: signedUrl,

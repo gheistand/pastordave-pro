@@ -29,7 +29,7 @@ export async function onRequestPost({ params, env, request }) {
 
   // Look up church to get notification contact
   const church = await env.DB.prepare(
-    "SELECT name, connect_card_contact FROM churches WHERE id = ? AND active = 1"
+    "SELECT name, email, admin_email, connect_card_contact FROM churches WHERE id = ? AND active = 1"
   )
     .bind(church_id)
     .first();
@@ -58,7 +58,7 @@ export async function onRequestPost({ params, env, request }) {
     .run();
 
   // Send email notification if we have a contact and API key
-  const notifyEmail = church.connect_card_contact;
+  const notifyEmail = church.admin_email || church.email;
   if (notifyEmail && env.RESEND_API_KEY) {
     const lines = [
       `<strong>Name:</strong> ${name.trim()}`,
@@ -74,7 +74,7 @@ export async function onRequestPost({ params, env, request }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Pastor Dave <noreply@pastordave.pro>",
+        from: "Pastor Dave <onboarding@resend.dev>",
         to: [notifyEmail],
         subject: `New visitor: ${name.trim()} — ${church.name}`,
         html: `

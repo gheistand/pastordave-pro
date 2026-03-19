@@ -44,8 +44,8 @@ export async function onRequestPost({ params, env, request }) {
   const createdAt = Math.floor(Date.now() / 1000);
 
   await env.DB.prepare(
-    `INSERT INTO visitors (id, church_id, name, email, phone, interest, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO visitors (id, church_id, name, email, phone, notes, source, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       visitorId,
@@ -53,7 +53,8 @@ export async function onRequestPost({ params, env, request }) {
       name.trim(),
       email || null,
       phone || null,
-      interest || null,
+      interest || null,  // stored as notes
+      "pastor-dave",     // source
       createdAt
     )
     .run();

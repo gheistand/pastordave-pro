@@ -9,7 +9,7 @@ export async function onRequestGet(context) {
   };
 
   const result = await env.DB.prepare(
-    `SELECT id, title, pastor, date, series, scripture, summary, key_points, discussion_questions
+    `SELECT id, title, speaker as pastor, date, series, scripture, summary, key_points, discussion_questions, youtube_id
      FROM sermons
      WHERE church_id = ?
      ORDER BY date DESC

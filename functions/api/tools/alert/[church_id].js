@@ -45,10 +45,10 @@ export async function onRequestPost({ params, env, request }) {
 
     // Insert into pastoral_alerts table
     await env.DB.prepare(
-      `INSERT INTO pastoral_alerts (id, church_id, session_id, alert_type, summary, created_at)
-       VALUES (?, ?, ?, ?, ?, ?)`
+      `INSERT INTO pastoral_alerts (id, church_id, user_id, type, message, resolved, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
     )
-      .bind(alert_id, church_id, alert_id, severity, situation, createdAt)
+      .bind(alert_id, church_id, first_name || 'anonymous', severity, situation, 0, createdAt)
       .run();
 
     const timestampStr = new Date(createdAt * 1000).toUTCString();

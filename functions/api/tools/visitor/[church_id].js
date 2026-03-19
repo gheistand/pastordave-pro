@@ -12,6 +12,7 @@ function json(data, status = 200) {
 }
 
 export async function onRequestPost({ params, env, request }) {
+  try {
   const { church_id } = params;
 
   let body;
@@ -89,6 +90,9 @@ export async function onRequestPost({ params, env, request }) {
   }
 
   return json({ success: true, id: visitorId });
+  } catch (err) {
+    return json({ error: "Internal error", detail: err.message || String(err) }, 500);
+  }
 }
 
 export async function onRequestOptions() {

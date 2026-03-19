@@ -16,16 +16,20 @@ export async function onRequestPost({ params, env, request }) {
   const { church_id } = params;
 
   let body;
+  let rawText;
   try {
-    body = await request.json();
+    rawText = await request.text();
+    body = JSON.parse(rawText);
   } catch {
-    return json({ error: "Invalid JSON" }, 400);
+    return json({ error: "Invalid JSON", raw: rawText }, 400);
   }
 
-  const { name, email, phone, interest } = body;
+  // ElevenLabs may wrap params under a "parameters" key
+  const params_data = body.parameters || body;
+  const { name, email, phone, interest } = params_data;
 
   if (!name || typeof name !== "string" || !name.trim()) {
-    return json({ error: "name is required" }, 400);
+    return json({ error: "name is required", received_body: body }, 400);
   }
 
   // Look up church to get notification contact

@@ -9,7 +9,7 @@ database_name = "pastordave-pro"
 database_id = "ce99918c-841f-4998-9139-1dd4a41c9a5e"
 
 [vars]
-CLERK_PUBLISHABLE_KEY = "pk_test_c2tpbGxlZC1za3lsYXJrLTc4LmNsZXJrLmFjY291bnRzLmRldiQ"
+CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsucGFzdG9yZGF2ZXByby5vcmck"
 
 # Secrets — set via: wrangler pages secret put <NAME>
 # CLERK_SECRET_KEY

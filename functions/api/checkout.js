@@ -93,8 +93,8 @@ export async function onRequestPost(context) {
   const sessionParams = {
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: 'https://app.askpastordave.org/app.html?upgraded=true',
-    cancel_url: 'https://app.askpastordave.org/pricing.html',
+    success_url: 'https://pastordavepro.org/app.html?upgraded=true',
+    cancel_url: 'https://pastordavepro.org/pricing.html',
     metadata: { clerk_user_id: userId },
   };
 

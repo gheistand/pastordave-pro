@@ -16,6 +16,7 @@ export async function onRequestPost({ params, env, request }) {
     const { church_id } = params;
 
     let body;
+    let smsResult = null;
     try {
       const rawText = await request.text();
       body = JSON.parse(rawText);
@@ -97,7 +98,7 @@ export async function onRequestPost({ params, env, request }) {
         situation.length > 100 ? situation.slice(0, 97) + "..." : situation;
       const smsBody = `Pastor Dave Alert at ${church.name}: ${severity} — ${truncatedSituation}. Check email for details.`;
 
-      await fetch(
+      const twilioResp = await fetch(
         `https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/Messages.json`,
         {
           method: "POST",
@@ -115,16 +116,16 @@ export async function onRequestPost({ params, env, request }) {
             Body: smsBody,
           }).toString(),
         }
-      ).catch(() => {
-        // SMS failure is non-fatal
-      });
+      );
+      const twilioData = await twilioResp.json().catch(() => ({}));
+      smsResult = { status: twilioResp.status, sid: twilioData.sid, error: twilioData.message };
     }
 
     return json({
       success: true,
       alert_id,
-      message:
-        "I've notified the pastoral team. You are not alone, and help is on the way.",
+      sms: smsResult,
+      message: "I've notified the pastoral team. You are not alone, and help is on the way.",
     });
   } catch (err) {
     return json(

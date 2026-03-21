@@ -57,6 +57,18 @@ async function loadSubscriptionStatus() {
       statusBar.innerHTML =
         '<span class="tier-badge tier-' + data.tier + '">' + capitalize(data.tier) + '</span>' +
         '<span>Unlimited conversations</span>';
+
+      if (data.tier === 'church') {
+        var nav = document.querySelector('nav');
+        if (nav && !document.getElementById('admin-link')) {
+          var adminLink = document.createElement('a');
+          adminLink.id = 'admin-link';
+          adminLink.href = '/admin.html';
+          adminLink.textContent = 'Admin Dashboard';
+          adminLink.style.cssText = 'color:#7c4f2a;text-decoration:none;font-size:0.9rem;font-weight:600;';
+          nav.insertBefore(adminLink, nav.firstChild);
+        }
+      }
     }
   } catch (err) {
     console.error('Failed to load subscription status:', err);

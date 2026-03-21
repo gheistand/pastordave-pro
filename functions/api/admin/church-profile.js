@@ -28,7 +28,7 @@ export async function onRequestPatch({ request, env }) {
     return json({ error: 'Invalid JSON' }, 400);
   }
 
-  const { logo_url, accent_color, display_name } = body;
+  const { logo_url, accent_color, display_name, weekly_bulletin } = body;
 
   const updates = [];
   const values = [];
@@ -44,6 +44,10 @@ export async function onRequestPatch({ request, env }) {
   if (display_name !== undefined) {
     updates.push('display_name = ?');
     values.push(display_name || null);
+  }
+  if (weekly_bulletin !== undefined) {
+    updates.push('weekly_bulletin = ?');
+    values.push(weekly_bulletin || null);
   }
 
   if (updates.length === 0) {

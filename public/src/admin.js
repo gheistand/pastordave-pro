@@ -474,6 +474,10 @@
               <input type="text" id="cs-accent-text" value="${escHtml(church.accent_color || '#7c4f2a')}" placeholder="#7c4f2a" style="flex:1;" />
             </div>
           </div>
+          <div class="settings-field">
+            <label for="cs-weekly-bulletin">Weekly Bulletin</label>
+            <textarea id="cs-weekly-bulletin" placeholder="Paste this week's church bulletin / announcements here. Pastor Dave will use this to answer questions about upcoming events, groups, and activities.">${escHtml(church.weekly_bulletin || '')}</textarea>
+          </div>
           <div class="form-actions">
             <button class="submit-btn" id="cs-save-btn">Save</button>
             <span id="cs-status" class="form-status"></span>
@@ -510,6 +514,7 @@
               display_name: document.getElementById('cs-display-name').value.trim() || null,
               logo_url: document.getElementById('cs-logo-url').value.trim() || null,
               accent_color: document.getElementById('cs-accent-text').value.trim() || null,
+              weekly_bulletin: document.getElementById('cs-weekly-bulletin').value.trim() || null,
             }),
           });
           const result = await r.json();

@@ -20,11 +20,8 @@ async function initClerk() {
   }
 
   await window.Clerk.load({
-    signInUrl: 'https://accounts.pastordavepro.org/sign-in',
-    signUpUrl: 'https://accounts.pastordavepro.org/sign-up',
-    afterSignInUrl: 'https://pastordavepro.org/app.html',
-    afterSignUpUrl: 'https://pastordavepro.org/app.html',
-    afterSignOutUrl: 'https://pastordavepro.org',
+    signInUrl: '/sign-in',
+    signUpUrl: '/sign-up',
   });
   console.log('Clerk initialized successfully');
 }
@@ -52,8 +49,8 @@ async function requireAuth() {
 
 function mountSignIn(mountTarget) {
   window.Clerk.mountSignIn(mountTarget, {
-    afterSignInUrl: '/app.html',
-    afterSignUpUrl: '/app.html',
+    afterSignInUrl: 'https://pastordavepro.org/app.html',
+    afterSignUpUrl: 'https://pastordavepro.org/app.html',
   });
 }
 

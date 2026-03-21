@@ -2,13 +2,15 @@
 
 This document describes the API tools exposed for ElevenLabs Conversational AI agents.
 
+All tool endpoints are unauthenticated (called directly by ElevenLabs — no user JWT required).
+
 ---
 
-## Tool 1: get_church_info
+## Tool 1: get_church_profile
 
 **GET** `/api/tools/church/:church_id`
 
-Returns general information about the church (name, address, service times, contact info, etc.).
+Returns the full church profile including name, pastor, mission, service times, contact info, next steps, and connect card process.
 
 ### Parameters
 
@@ -22,38 +24,42 @@ Returns general information about the church (name, address, service times, cont
 {
   "id": "new-horizon-champaign",
   "name": "New Horizon Church",
-  "address": "123 Main St, Champaign IL",
-  "service_times": "Sundays at 9am and 11am",
-  "phone": "...",
-  "email": "...",
-  "website": "..."
+  "pastor": "Pastor Mark Jordan",
+  "denomination": "Global Methodist Church",
+  "mission": "Love God, Love Others & Make Disciples",
+  "address": "3002 W. Bloomington Rd., Champaign, IL 61822",
+  "phone": "217-359-8909",
+  "email": "Info@NewHorizonChurch.org",
+  "website": "https://newhorizonchurch.org",
+  "service_times": "Sundays at 10:30 AM",
+  "next_steps": ["...", "..."],
+  "connect_card_contact": "Sara Easter (church administrator) will follow up personally"
 }
 ```
 
 ---
 
-## Tool 2: capture_visitor
+## Tool 2: create_visitor_record
 
-**POST** `/api/tools/visitor`
+**POST** `/api/tools/visitor/:church_id`
 
-Captures a visitor's name and contact information and sends a notification email to the church.
+Captures a visitor's name and contact info, saves to D1, and sends a notification email to the church admin (Sara Easter at New Horizon).
 
 ### Request Body
 
 ```json
 {
-  "church_id": "new-horizon-champaign",
   "name": "Jane Smith",
   "email": "jane@example.com",
   "phone": "217-555-0100",
-  "notes": "Interested in small groups"
+  "interest": "Interested in small groups"
 }
 ```
 
 ### Response
 
 ```json
-{ "success": true, "message": "Visitor info saved" }
+{ "success": true, "id": "uuid" }
 ```
 
 ---
@@ -62,7 +68,7 @@ Captures a visitor's name and contact information and sends a notification email
 
 **GET** `/api/tools/sermon/:church_id`
 
-Returns the most recent sermon for the church, including a summary, key points, and small group discussion questions. No authentication required — ElevenLabs calls this directly.
+Returns the most recent sermon including summary, key points, and small group discussion questions.
 
 ### Parameters
 
@@ -80,21 +86,9 @@ Returns the most recent sermon for the church, including a summary, key points, 
   "date": "2026-03-15",
   "series": "Living Well",
   "scripture": "James 3:1-12",
-  "summary": "In this sermon, Pastor Mark explores how the words we speak shape our relationships and our walk with God...",
-  "key_points": [
-    "Our words carry the power of life and death (Proverbs 18:21).",
-    "...",
-    "...",
-    "...",
-    "..."
-  ],
-  "discussion_questions": [
-    "Think of a time when words — your own or someone else's — had a significant impact. What happened?",
-    "...",
-    "...",
-    "...",
-    "..."
-  ]
+  "summary": "...",
+  "key_points": ["...", "...", "..."],
+  "discussion_questions": ["...", "...", "..."]
 }
 ```
 
@@ -106,7 +100,7 @@ Returns the most recent sermon for the church, including a summary, key points, 
 
 ### Loading Sermons
 
-Use `scripts/load_sermon.py` to load a sermon transcript into D1:
+Use `scripts/load_sermon.py` to load a sermon into D1:
 
 ```bash
 python3 scripts/load_sermon.py \
@@ -118,6 +112,39 @@ python3 scripts/load_sermon.py \
   --youtube-id "8K_BInk1qsQ"
 ```
 
-The script calls the Anthropic API to generate the summary, key points, and discussion questions, previews the output, and prompts for confirmation before inserting into D1.
+The script calls the Anthropic API to generate summary, key points, and discussion questions, previews output, and prompts for confirmation before inserting into D1.
 
 **Required env var:** `ANTHROPIC_API_KEY`
+
+---
+
+## Tool 4: raise_pastoral_alert
+
+**POST** `/api/tools/alert/:church_id`
+
+Flags a crisis or pastoral concern. Sends email (Resend) + SMS (Twilio) to the pastoral team immediately.
+
+### Request Body
+
+```json
+{
+  "situation": "User expressed thoughts of self-harm",
+  "severity": "crisis",
+  "first_name": "Jane"
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "alert_id": "uuid",
+  "message": "I've notified the pastoral team. You are not alone, and help is on the way."
+}
+```
+
+**New Horizon routing:**
+- Email → `PASTORAL_ALERT_EMAIL` env var
+- SMS → `PASTORAL_ALERT_PHONE` env var (Pastor Mark Jordan's cell)
+

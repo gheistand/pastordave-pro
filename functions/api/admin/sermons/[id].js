@@ -1,4 +1,4 @@
-import { requireAdmin, json, CHURCH_ID } from '../_admin_auth.js';
+import { requireAdmin, json } from '../_admin_auth.js';
 
 export async function onRequestPut({ request, env, params }) {
   const admin = await requireAdmin(request, env);
@@ -63,7 +63,7 @@ export async function onRequestPut({ request, env, params }) {
     }
 
     values.push(id);
-    values.push(CHURCH_ID);
+    values.push(admin.churchId);
 
     const query = `UPDATE sermons SET ${updates.join(', ')} WHERE id = ? AND church_id = ?`;
     const result = await env.DB.prepare(query).bind(...values).run();

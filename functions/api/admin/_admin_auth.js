@@ -1,8 +1,6 @@
 // Shared admin auth helper for /api/admin/* endpoints
 import { verifyClerkToken } from '../_auth.js';
 
-export const CHURCH_ID = 'new-horizon-champaign';
-
 export function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -28,15 +26,16 @@ export async function requireAdmin(request, env) {
     return null;
   }
 
-  // Allow Glenn by explicit user ID (env var fallback)
+  // Allow ADMIN_USER_ID env var — look up their church_id from DB
   if (env.ADMIN_USER_ID && userId === env.ADMIN_USER_ID) {
-    return { userId, churchId: CHURCH_ID };
+    const user = await env.DB.prepare('SELECT church_id FROM users WHERE id = ?').bind(userId).first();
+    return { userId, churchId: user?.church_id || 'new-horizon-champaign' };
   }
 
-  // Otherwise require church tier
-  const user = await env.DB.prepare('SELECT tier FROM users WHERE id = ?').bind(userId).first();
-  if (user && user.tier === 'church') {
-    return { userId, churchId: CHURCH_ID };
+  // Otherwise require church tier with a church_id set
+  const user = await env.DB.prepare('SELECT tier, church_id FROM users WHERE id = ?').bind(userId).first();
+  if (user && user.tier === 'church' && user.church_id) {
+    return { userId, churchId: user.church_id };
   }
 
   return null;

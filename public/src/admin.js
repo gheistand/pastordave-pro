@@ -53,6 +53,36 @@
     if (el) el.innerHTML = `<div class="loading">${msg}</div>`;
   }
 
+  // ── Branding ──────────────────────────────────────────────────────────────
+  function applyBranding(church) {
+    if (church.accent_color) {
+      document.documentElement.style.setProperty('--brand', church.accent_color);
+      // derive a slightly darker shade for hover states
+      document.documentElement.style.setProperty('--brand-dark', church.accent_color);
+    }
+    if (church.logo_url) {
+      const logoEl = document.querySelector('.logo');
+      if (logoEl) {
+        logoEl.innerHTML = `<img src="${church.logo_url}" alt="Church logo" style="max-height:32px;vertical-align:middle;" />`;
+      }
+    }
+    if (church.display_name) {
+      const label = document.querySelector('.church-label');
+      if (label) label.textContent = church.display_name + ' — Admin';
+    }
+  }
+
+  async function loadBranding() {
+    try {
+      const res = await apiFetch('/api/admin/church-profile');
+      if (!res.ok) return;
+      const { church } = await res.json();
+      applyBranding(church);
+    } catch { /* non-fatal */ }
+  }
+
+  loadBranding();
+
   // ── Tab switching ─────────────────────────────────────────────────────────
   const tabs = document.querySelectorAll('.tab-btn');
   const panels = document.querySelectorAll('.tab-panel');
@@ -409,6 +439,98 @@
     }
   }
 
+  // ── Church Settings ───────────────────────────────────────────────────────
+  async function loadChurchSettings() {
+    const container = document.getElementById('church-settings-content');
+    container.innerHTML = '<div class="loading">Loading…</div>';
+    try {
+      const res = await apiFetch('/api/admin/church-profile');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const { church } = await res.json();
+
+      container.innerHTML = `
+        <div class="settings-card">
+          <div class="settings-field">
+            <label>Church Name</label>
+            <p style="font-size:0.95rem; color:#333;">${escHtml(church.name || '')}</p>
+          </div>
+          <div class="settings-field">
+            <label>Pastor</label>
+            <p style="font-size:0.95rem; color:#333;">${escHtml(church.pastor_name || '')}</p>
+          </div>
+          <div class="settings-field">
+            <label for="cs-display-name">Display Name</label>
+            <input type="text" id="cs-display-name" value="${escHtml(church.display_name || '')}" placeholder="e.g. New Horizon Church" />
+          </div>
+          <div class="settings-field">
+            <label for="cs-logo-url">Logo URL</label>
+            <input type="text" id="cs-logo-url" value="${escHtml(church.logo_url || '')}" placeholder="https://…/logo.png" />
+            <img id="cs-logo-preview" class="logo-preview" src="${escHtml(church.logo_url || '')}" alt="Logo preview" ${church.logo_url ? 'style="display:block"' : ''} />
+          </div>
+          <div class="settings-field">
+            <label for="cs-accent-text">Accent Color</label>
+            <div class="color-row">
+              <input type="color" id="cs-accent-color" value="${escHtml(church.accent_color || '#7c4f2a')}" />
+              <input type="text" id="cs-accent-text" value="${escHtml(church.accent_color || '#7c4f2a')}" placeholder="#7c4f2a" style="flex:1;" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="submit-btn" id="cs-save-btn">Save</button>
+            <span id="cs-status" class="form-status"></span>
+          </div>
+        </div>`;
+
+      // Live logo preview
+      document.getElementById('cs-logo-url').addEventListener('input', (e) => {
+        const preview = document.getElementById('cs-logo-preview');
+        const val = e.target.value.trim();
+        preview.src = val;
+        preview.style.display = val ? 'block' : 'none';
+      });
+
+      // Sync color picker ↔ text input
+      const colorPicker = document.getElementById('cs-accent-color');
+      const colorText = document.getElementById('cs-accent-text');
+      colorPicker.addEventListener('input', () => { colorText.value = colorPicker.value; });
+      colorText.addEventListener('input', () => {
+        if (/^#[0-9a-fA-F]{6}$/.test(colorText.value)) colorPicker.value = colorText.value;
+      });
+
+      // Save
+      document.getElementById('cs-save-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('cs-save-btn');
+        const status = document.getElementById('cs-status');
+        btn.disabled = true;
+        status.textContent = '';
+        status.className = 'form-status';
+        try {
+          const r = await apiFetch('/api/admin/church-profile', {
+            method: 'PATCH',
+            body: JSON.stringify({
+              display_name: document.getElementById('cs-display-name').value.trim() || null,
+              logo_url: document.getElementById('cs-logo-url').value.trim() || null,
+              accent_color: document.getElementById('cs-accent-text').value.trim() || null,
+            }),
+          });
+          const result = await r.json();
+          if (!r.ok) throw new Error(result.error || `HTTP ${r.status}`);
+          status.textContent = 'Settings saved.';
+          status.className = 'form-status success';
+          // Apply branding live
+          const color = document.getElementById('cs-accent-text').value.trim();
+          if (color) applyBranding({ accent_color: color });
+        } catch (err) {
+          status.textContent = `Save failed: ${err.message}`;
+          status.className = 'form-status error';
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    } catch (err) {
+      showError('church-settings-content', `Failed to load church settings: ${err.message}`);
+    }
+  }
+
   // ── Tab loader dispatch ───────────────────────────────────────────────────
   const loaded = new Set();
 
@@ -419,6 +541,7 @@
     else if (tabId === 'alerts') loadAlerts();
     else if (tabId === 'sermons') loadSermons();
     else if (tabId === 'stats') loadStats();
+    else if (tabId === 'church-settings') loadChurchSettings();
   }
 
   // Activate default tab

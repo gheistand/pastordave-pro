@@ -65,9 +65,10 @@ async function loadSubscriptionStatus() {
           adminLink.id = 'admin-link';
           adminLink.href = '/admin.html';
           adminLink.textContent = 'Admin Dashboard';
-          adminLink.style.cssText = 'color:#7c4f2a;text-decoration:none;font-size:0.9rem;font-weight:600;';
+          adminLink.style.cssText = 'color:var(--brand,#7c4f2a);text-decoration:none;font-size:0.9rem;font-weight:600;';
           nav.insertBefore(adminLink, nav.firstChild);
         }
+        loadChurchBranding(token);
       }
     }
   } catch (err) {
@@ -225,6 +226,27 @@ async function startElevenLabsConversation(signedUrl, container, startBtn) {
       startBtn.disabled = false;
     }
   });
+}
+
+async function loadChurchBranding(token) {
+  try {
+    var res = await fetch('/api/admin/church-profile', {
+      headers: { Authorization: 'Bearer ' + token },
+    });
+    if (!res.ok) return;
+    var data = await res.json();
+    var church = data.church;
+    if (!church) return;
+    if (church.accent_color) {
+      document.documentElement.style.setProperty('--brand', church.accent_color);
+    }
+    if (church.logo_url) {
+      var logoEl = document.querySelector('.logo');
+      if (logoEl) {
+        logoEl.innerHTML = '<img src="' + church.logo_url + '" alt="Church logo" style="max-height:32px;vertical-align:middle;" />';
+      }
+    }
+  } catch { /* non-fatal */ }
 }
 
 function capitalize(str) {

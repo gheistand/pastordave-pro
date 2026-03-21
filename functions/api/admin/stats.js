@@ -1,4 +1,4 @@
-import { requireAdmin, json, CHURCH_ID } from './_admin_auth.js';
+import { requireAdmin, json } from './_admin_auth.js';
 
 export async function onRequestGet({ request, env }) {
   const admin = await requireAdmin(request, env);
@@ -6,10 +6,10 @@ export async function onRequestGet({ request, env }) {
 
   try {
     const [visitors, alertsOpen, alertsResolved, sermons, usersPro, usersChurch] = await Promise.all([
-      env.DB.prepare('SELECT COUNT(*) as n FROM visitors WHERE church_id = ?').bind(CHURCH_ID).first(),
-      env.DB.prepare('SELECT COUNT(*) as n FROM pastoral_alerts WHERE church_id = ? AND resolved = 0').bind(CHURCH_ID).first(),
-      env.DB.prepare('SELECT COUNT(*) as n FROM pastoral_alerts WHERE church_id = ? AND resolved = 1').bind(CHURCH_ID).first(),
-      env.DB.prepare('SELECT COUNT(*) as n FROM sermons WHERE church_id = ?').bind(CHURCH_ID).first(),
+      env.DB.prepare('SELECT COUNT(*) as n FROM visitors WHERE church_id = ?').bind(admin.churchId).first(),
+      env.DB.prepare('SELECT COUNT(*) as n FROM pastoral_alerts WHERE church_id = ? AND resolved = 0').bind(admin.churchId).first(),
+      env.DB.prepare('SELECT COUNT(*) as n FROM pastoral_alerts WHERE church_id = ? AND resolved = 1').bind(admin.churchId).first(),
+      env.DB.prepare('SELECT COUNT(*) as n FROM sermons WHERE church_id = ?').bind(admin.churchId).first(),
       env.DB.prepare("SELECT COUNT(*) as n FROM users WHERE tier = 'pro'").first(),
       env.DB.prepare("SELECT COUNT(*) as n FROM users WHERE tier = 'church'").first(),
     ]);

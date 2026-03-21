@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Church Pro Admin — Pastor Dave Pro</title>
   <style>
+    :root { --brand: var(--brand, #7c4f2a); --brand-dark: var(--brand-dark, #6a4224); }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -26,7 +27,7 @@
       border-bottom: 1px solid #e5e0d8;
     }
 
-    .logo { font-size: 1.1rem; font-weight: 700; color: #7c4f2a; }
+    .logo { font-size: 1.1rem; font-weight: 700; color: var(--brand, #7c4f2a); }
     .church-label {
       font-size: 0.8rem;
       color: #888;
@@ -57,8 +58,8 @@
       transition: color 0.15s, border-color 0.15s;
     }
 
-    .tab-btn:hover { color: #7c4f2a; }
-    .tab-btn.active { color: #7c4f2a; border-bottom-color: #7c4f2a; }
+    .tab-btn:hover { color: var(--brand, #7c4f2a); }
+    .tab-btn.active { color: var(--brand, #7c4f2a); border-bottom-color: var(--brand, #7c4f2a); }
 
     /* ── Main content ── */
     main { flex: 1; padding: 2rem; max-width: 1100px; width: 100%; margin: 0 auto; }
@@ -69,7 +70,7 @@
     h2 {
       font-size: 1.3rem;
       font-weight: 700;
-      color: #7c4f2a;
+      color: var(--brand, #7c4f2a);
       margin-bottom: 1.25rem;
     }
 
@@ -84,7 +85,7 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
 
-    thead tr { background: #7c4f2a; color: #fff; }
+    thead tr { background: var(--brand, #7c4f2a); color: #fff; }
     th {
       padding: 0.65rem 0.85rem;
       text-align: left;
@@ -133,7 +134,7 @@
     /* ── Buttons ── */
     .resolve-btn {
       padding: 0.3rem 0.7rem;
-      background: #7c4f2a;
+      background: var(--brand, #7c4f2a);
       color: #fff;
       border: none;
       border-radius: 5px;
@@ -142,7 +143,7 @@
       white-space: nowrap;
     }
 
-    .resolve-btn:hover { background: #6a4224; }
+    .resolve-btn:hover { background: var(--brand-dark, #6a4224); }
     .resolved-label { font-size: 0.8rem; color: #198754; font-weight: 500; }
 
     /* ── Sermon form ── */
@@ -155,7 +156,7 @@
 
     #toggle-sermon-form {
       padding: 0.4rem 1rem;
-      background: #7c4f2a;
+      background: var(--brand, #7c4f2a);
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -163,7 +164,7 @@
       cursor: pointer;
     }
 
-    #toggle-sermon-form:hover { background: #6a4224; }
+    #toggle-sermon-form:hover { background: var(--brand-dark, #6a4224); }
 
     #sermon-form-wrapper {
       display: none;
@@ -178,7 +179,7 @@
     #sermon-form-wrapper h3 {
       font-size: 1rem;
       font-weight: 600;
-      color: #7c4f2a;
+      color: var(--brand, #7c4f2a);
       margin-bottom: 1rem;
     }
 
@@ -211,7 +212,7 @@
 
     input[type=text]:focus, input[type=date]:focus, textarea:focus {
       outline: none;
-      border-color: #7c4f2a;
+      border-color: var(--brand, #7c4f2a);
       background: #fff;
     }
 
@@ -221,7 +222,7 @@
 
     .submit-btn {
       padding: 0.5rem 1.25rem;
-      background: #7c4f2a;
+      background: var(--brand, #7c4f2a);
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -230,7 +231,7 @@
       cursor: pointer;
     }
 
-    .submit-btn:hover { background: #6a4224; }
+    .submit-btn:hover { background: var(--brand-dark, #6a4224); }
     .submit-btn:disabled { opacity: 0.6; cursor: default; }
 
     .cancel-btn {
@@ -248,7 +249,7 @@
 
     .edit-btn {
       padding: 0.3rem 0.7rem;
-      background: #7c4f2a;
+      background: var(--brand, #7c4f2a);
       color: #fff;
       border: none;
       border-radius: 5px;
@@ -258,7 +259,7 @@
       margin-right: 0.5rem;
     }
 
-    .edit-btn:hover { background: #6a4224; }
+    .edit-btn:hover { background: var(--brand-dark, #6a4224); }
 
     .sermon-edit-row {
       display: none;
@@ -297,7 +298,7 @@
     .stat-number {
       font-size: 2rem;
       font-weight: 700;
-      color: #7c4f2a;
+      color: var(--brand, #7c4f2a);
       line-height: 1;
       margin-bottom: 0.4rem;
     }
@@ -318,6 +319,37 @@
       border-radius: 6px;
       padding: 0.75rem 1rem;
       font-size: 0.875rem;
+    }
+
+    /* ── Church Settings ── */
+    .settings-card {
+      background: #fff;
+      border: 1px solid #e5e0d8;
+      border-radius: 8px;
+      padding: 1.5rem;
+      max-width: 560px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .settings-field { margin-bottom: 1rem; }
+
+    .color-row { display: flex; gap: 0.5rem; align-items: center; }
+    .color-row input[type=color] {
+      width: 48px;
+      height: 36px;
+      padding: 2px;
+      border: 1px solid #d0cbc3;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #fafafa;
+      flex-shrink: 0;
+    }
+
+    .logo-preview {
+      margin-top: 0.5rem;
+      max-height: 60px;
+      border-radius: 4px;
+      display: none;
     }
 
     /* ── Responsive ── */
@@ -346,6 +378,7 @@
     <button class="tab-btn" data-tab="alerts">Pastoral Alerts</button>
     <button class="tab-btn" data-tab="sermons">Sermons</button>
     <button class="tab-btn" data-tab="stats">Stats</button>
+    <button class="tab-btn" data-tab="church-settings">Church Settings</button>
   </nav>
 
   <main>
@@ -424,6 +457,12 @@
     <div class="tab-panel" id="panel-stats">
       <h2>Stats</h2>
       <div id="stats-content"><div class="loading">Loading…</div></div>
+    </div>
+
+    <!-- Church Settings -->
+    <div class="tab-panel" id="panel-church-settings">
+      <h2>Church Settings</h2>
+      <div id="church-settings-content"><div class="loading">Loading…</div></div>
     </div>
 
   </main>

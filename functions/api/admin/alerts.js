@@ -1,4 +1,4 @@
-import { requireAdmin, json, CHURCH_ID } from './_admin_auth.js';
+import { requireAdmin, json } from './_admin_auth.js';
 
 export async function onRequestGet({ request, env }) {
   const admin = await requireAdmin(request, env);
@@ -7,7 +7,7 @@ export async function onRequestGet({ request, env }) {
   try {
     const { results } = await env.DB.prepare(
       'SELECT * FROM pastoral_alerts WHERE church_id = ? ORDER BY created_at DESC'
-    ).bind(CHURCH_ID).all();
+    ).bind(admin.churchId).all();
 
     return json({ alerts: results });
   } catch (err) {

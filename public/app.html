@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pastor Dave Pro — App</title>
   <style>
+    :root { --brand: var(--brand, #7c4f2a); --brand-dark: var(--brand-dark, #6a4224); }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -25,10 +26,10 @@
       border-bottom: 1px solid #e5e0d8;
     }
 
-    .logo { font-size: 1.1rem; font-weight: 700; color: #7c4f2a; }
+    .logo { font-size: 1.1rem; font-weight: 700; color: var(--brand, #7c4f2a); }
 
     nav { display: flex; gap: 1.5rem; align-items: center; }
-    nav a { color: #7c4f2a; text-decoration: none; font-size: 0.9rem; }
+    nav a { color: var(--brand, #7c4f2a); text-decoration: none; font-size: 0.9rem; }
 
     #upgrade-banner {
       display: none;
@@ -66,7 +67,7 @@
     .tier-church  { background: #cfe2ff; color: #084298; }
 
     .upgrade-link {
-      color: #7c4f2a;
+      color: var(--brand, #7c4f2a);
       text-decoration: underline;
       font-size: 0.85rem;
     }
@@ -82,7 +83,7 @@
     h1 {
       font-size: 1.8rem;
       font-weight: 700;
-      color: #7c4f2a;
+      color: var(--brand, #7c4f2a);
       margin-bottom: 0.4rem;
     }
 
@@ -93,7 +94,7 @@
     }
 
     #start-btn {
-      background: #7c4f2a;
+      background: var(--brand, #7c4f2a);
       color: #fff;
       border: none;
       padding: 0.85rem 2.5rem;
@@ -121,7 +122,7 @@
       color: #664d03;
     }
 
-    #limit-message a { color: #7c4f2a; font-weight: 600; }
+    #limit-message a { color: var(--brand, #7c4f2a); font-weight: 600; }
 
     #error-message {
       display: none;

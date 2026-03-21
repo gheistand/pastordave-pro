@@ -19,7 +19,13 @@ async function initClerk() {
     return;
   }
 
-  await window.Clerk.load();
+  await window.Clerk.load({
+    signInUrl: 'https://accounts.pastordavepro.org/sign-in',
+    signUpUrl: 'https://accounts.pastordavepro.org/sign-up',
+    afterSignInUrl: 'https://pastordavepro.org/app.html',
+    afterSignUpUrl: 'https://pastordavepro.org/app.html',
+    afterSignOutUrl: 'https://pastordavepro.org',
+  });
   console.log('Clerk initialized successfully');
 }
 

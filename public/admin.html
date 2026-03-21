@@ -233,6 +233,47 @@
     .submit-btn:hover { background: #6a4224; }
     .submit-btn:disabled { opacity: 0.6; cursor: default; }
 
+    .cancel-btn {
+      padding: 0.5rem 1.25rem;
+      background: #999;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .cancel-btn:hover { background: #777; }
+
+    .edit-btn {
+      padding: 0.3rem 0.7rem;
+      background: #7c4f2a;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+      margin-right: 0.5rem;
+    }
+
+    .edit-btn:hover { background: #6a4224; }
+
+    .sermon-edit-row {
+      display: none;
+      background: #faf7f3;
+    }
+
+    .sermon-edit-row.open {
+      display: table-row;
+    }
+
+    .edit-form-cell {
+      padding: 1rem;
+      grid-column: 1 / -1;
+    }
+
     .form-status { font-size: 0.875rem; }
     .form-status.success { color: #198754; }
     .form-status.error { color: #dc3545; }
@@ -363,6 +404,10 @@
             <div class="form-full">
               <label for="f-discussion_questions">Discussion Questions</label>
               <textarea id="f-discussion_questions" name="discussion_questions" placeholder="Small group discussion questions…"></textarea>
+            </div>
+            <div>
+              <label for="f-youtube_id">YouTube Video ID</label>
+              <input type="text" id="f-youtube_id" name="youtube_id" placeholder="e.g. 8K_BInk1qsQ" />
             </div>
           </div>
           <div class="form-actions">

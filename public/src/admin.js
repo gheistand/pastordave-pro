@@ -175,23 +175,143 @@
       }
 
       const rows = sermons.map(s => `
-        <tr>
+        <tr data-sermon-id="${escHtml(s.id)}">
           <td><strong>${escHtml(s.title)}</strong></td>
           <td>${escHtml(s.pastor)}</td>
           <td class="date-cell">${escHtml(s.date)}</td>
           <td>${escHtml(s.series)}</td>
           <td>${escHtml(s.scripture)}</td>
-        </tr>`).join('');
+          <td><button class="edit-btn" data-id="${escHtml(s.id)}">Edit</button></td>
+        </tr>
+        <tr class="sermon-edit-row" data-edit-row-id="${escHtml(s.id)}">
+          <td colspan="6">
+            <div class="edit-form-cell">
+              <h3 style="margin-bottom: 1rem;">Edit Sermon</h3>
+              <form class="sermon-edit-form" data-sermon-id="${escHtml(s.id)}">
+                <div class="form-grid">
+                  <div>
+                    <label for="edit-title-${escHtml(s.id)}">Title</label>
+                    <input type="text" id="edit-title-${escHtml(s.id)}" class="edit-title" value="${escHtml(s.title)}" />
+                  </div>
+                  <div>
+                    <label for="edit-pastor-${escHtml(s.id)}">Pastor</label>
+                    <input type="text" id="edit-pastor-${escHtml(s.id)}" class="edit-pastor" value="${escHtml(s.pastor)}" />
+                  </div>
+                  <div>
+                    <label for="edit-date-${escHtml(s.id)}">Date</label>
+                    <input type="date" id="edit-date-${escHtml(s.id)}" class="edit-date" value="${escHtml(s.date)}" />
+                  </div>
+                  <div>
+                    <label for="edit-series-${escHtml(s.id)}">Series</label>
+                    <input type="text" id="edit-series-${escHtml(s.id)}" class="edit-series" value="${escHtml(s.series || '')}" />
+                  </div>
+                  <div class="form-full">
+                    <label for="edit-scripture-${escHtml(s.id)}">Scripture Reference</label>
+                    <input type="text" id="edit-scripture-${escHtml(s.id)}" class="edit-scripture" value="${escHtml(s.scripture || '')}" />
+                  </div>
+                  <div class="form-full">
+                    <label for="edit-summary-${escHtml(s.id)}">Summary</label>
+                    <textarea id="edit-summary-${escHtml(s.id)}" class="edit-summary">${escHtml(s.summary || '')}</textarea>
+                  </div>
+                  <div class="form-full">
+                    <label for="edit-key_points-${escHtml(s.id)}">Key Points</label>
+                    <textarea id="edit-key_points-${escHtml(s.id)}" class="edit-key_points">${escHtml(s.key_points || '')}</textarea>
+                  </div>
+                  <div class="form-full">
+                    <label for="edit-discussion_questions-${escHtml(s.id)}">Discussion Questions</label>
+                    <textarea id="edit-discussion_questions-${escHtml(s.id)}" class="edit-discussion_questions">${escHtml(s.discussion_questions || '')}</textarea>
+                  </div>
+                  <div>
+                    <label for="edit-youtube_id-${escHtml(s.id)}">YouTube Video ID</label>
+                    <input type="text" id="edit-youtube_id-${escHtml(s.id)}" class="edit-youtube_id" value="${escHtml(s.youtube_id || '')}" placeholder="e.g. 8K_BInk1qsQ" />
+                  </div>
+                </div>
+                <div class="form-actions" style="margin-top: 1rem;">
+                  <button type="submit" class="submit-btn edit-save-btn" data-id="${escHtml(s.id)}">Save</button>
+                  <button type="button" class="cancel-btn edit-cancel-btn" data-id="${escHtml(s.id)}">Cancel</button>
+                  <span class="form-status edit-status" data-id="${escHtml(s.id)}"></span>
+                </div>
+              </form>
+            </div>
+          </td>
+        </tr>
+      `).join('');
 
       document.getElementById('sermons-table').innerHTML = `
         <table>
           <thead><tr>
-            <th>Title</th><th>Pastor</th><th>Date</th><th>Series</th><th>Scripture</th>
+            <th>Title</th><th>Pastor</th><th>Date</th><th>Series</th><th>Scripture</th><th>Action</th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
+
+      // Wire up edit buttons
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => toggleEditForm(btn.dataset.id));
+      });
+
+      // Wire up edit form submit and cancel buttons
+      document.querySelectorAll('.sermon-edit-form').forEach(form => {
+        form.addEventListener('submit', (e) => saveSermonEdit(e));
+        const cancelBtn = form.querySelector('.edit-cancel-btn');
+        if (cancelBtn) {
+          cancelBtn.addEventListener('click', () => toggleEditForm(cancelBtn.dataset.id));
+        }
+      });
     } catch (err) {
       showError('sermons-table', `Failed to load sermons: ${err.message}`);
+    }
+  }
+
+  function toggleEditForm(sermonId) {
+    const editRow = document.querySelector(`tr[data-edit-row-id="${sermonId}"]`);
+    if (editRow) {
+      editRow.classList.toggle('open');
+    }
+  }
+
+  async function saveSermonEdit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const sermonId = form.dataset.sermonId;
+    const statusEl = document.querySelector(`.edit-status[data-id="${sermonId}"]`);
+    const saveBtn = form.querySelector('.edit-save-btn');
+
+    statusEl.textContent = '';
+    statusEl.className = 'form-status edit-status';
+    saveBtn.disabled = true;
+
+    const data = {
+      title: form.querySelector('.edit-title').value.trim(),
+      pastor: form.querySelector('.edit-pastor').value.trim(),
+      date: form.querySelector('.edit-date').value,
+      series: form.querySelector('.edit-series').value.trim() || null,
+      scripture: form.querySelector('.edit-scripture').value.trim() || null,
+      summary: form.querySelector('.edit-summary').value.trim() || null,
+      key_points: form.querySelector('.edit-key_points').value.trim() || null,
+      discussion_questions: form.querySelector('.edit-discussion_questions').value.trim() || null,
+      youtube_id: form.querySelector('.edit-youtube_id').value.trim() || null,
+    };
+
+    try {
+      const res = await apiFetch(`/api/admin/sermons/${sermonId}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || `HTTP ${res.status}`);
+
+      statusEl.textContent = 'Sermon updated successfully.';
+      statusEl.className = 'form-status edit-status success';
+      setTimeout(() => {
+        toggleEditForm(sermonId);
+        loadSermons();
+      }, 500);
+    } catch (err) {
+      statusEl.textContent = `Update failed: ${err.message}`;
+      statusEl.className = 'form-status edit-status error';
+    } finally {
+      saveBtn.disabled = false;
     }
   }
 
@@ -216,6 +336,7 @@
       summary: form.summary.value.trim() || null,
       key_points: form.key_points.value.trim() || null,
       discussion_questions: form.discussion_questions.value.trim() || null,
+      youtube_id: form.youtube_id.value.trim() || null,
     };
 
     try {

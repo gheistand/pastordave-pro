@@ -1,7 +1,7 @@
 // Shared Clerk JWT verification for Cloudflare Workers
 // Uses the JWKS endpoint directly instead of @clerk/backend
 
-const JWKS_URL = 'https://skilled-skylark-78.clerk.accounts.dev/.well-known/jwks.json';
+const JWKS_URL = 'https://clerk.pastordavepro.org/.well-known/jwks.json';
 
 let cachedJWKS = null;
 let cachedAt = 0;

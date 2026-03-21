@@ -46,7 +46,8 @@ async function requireAuth() {
 
 function mountSignIn(mountTarget) {
   window.Clerk.mountSignIn(mountTarget, {
-    fallbackRedirectUrl: '/app.html',
+    afterSignInUrl: '/app.html',
+    afterSignUpUrl: '/app.html',
   });
 }
 

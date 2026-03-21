@@ -25,6 +25,9 @@ async function initClerk() {
     afterSignInUrl: 'https://pastordavepro.org/app.html',
     afterSignUpUrl: 'https://pastordavepro.org/app.html',
     afterSignOutUrl: 'https://pastordavepro.org',
+    // Clerk v6 redirect options
+    fallbackRedirectUrl: 'https://pastordavepro.org/app.html',
+    forceRedirectUrl: 'https://pastordavepro.org/app.html',
   });
   console.log('Clerk initialized successfully');
 }

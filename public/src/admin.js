@@ -478,6 +478,11 @@
             <label for="cs-weekly-bulletin">Weekly Bulletin</label>
             <textarea id="cs-weekly-bulletin" placeholder="Paste this week's church bulletin / announcements here. Pastor Dave will use this to answer questions about upcoming events, groups, and activities.">${escHtml(church.weekly_bulletin || '')}</textarea>
           </div>
+          <div class="settings-field">
+            <label for="cs-bulletin-url">Auto-Fetch URL <span style="font-weight:400;color:#888;">(optional — fetched every Monday)</span></label>
+            <input type="text" id="cs-bulletin-url" value="${escHtml(church.bulletin_url || '')}" placeholder="https://yourchurch.org/weekly-updates" />
+            <p style="font-size:0.78rem;color:#888;margin-top:0.25rem;">If set, the Weekly Bulletin above is updated automatically every Monday morning.</p>
+          </div>
           <div class="form-actions">
             <button class="submit-btn" id="cs-save-btn">Save</button>
             <span id="cs-status" class="form-status"></span>
@@ -515,6 +520,7 @@
               logo_url: document.getElementById('cs-logo-url').value.trim() || null,
               accent_color: document.getElementById('cs-accent-text').value.trim() || null,
               weekly_bulletin: document.getElementById('cs-weekly-bulletin').value.trim() || null,
+              bulletin_url: document.getElementById('cs-bulletin-url').value.trim() || null,
             }),
           });
           const result = await r.json();

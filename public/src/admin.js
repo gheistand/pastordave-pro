@@ -224,7 +224,7 @@
                     <input type="text" id="edit-title-${escHtml(s.id)}" class="edit-title" value="${escHtml(s.title)}" />
                   </div>
                   <div>
-                    <label for="edit-pastor-${escHtml(s.id)}">Pastor</label>
+                    <label for="edit-pastor-${escHtml(s.id)}">Speaker/label>
                     <input type="text" id="edit-pastor-${escHtml(s.id)}" class="edit-pastor" value="${escHtml(s.pastor)}" />
                   </div>
                   <div>
@@ -270,7 +270,7 @@
       document.getElementById('sermons-table').innerHTML = `
         <table>
           <thead><tr>
-            <th>Title</th><th>Pastor</th><th>Date</th><th>Series</th><th>Scripture</th><th>Action</th>
+            <th>Title</th><th>Speaker</th><th>Date</th><th>Series</th><th>Scripture</th><th>Action</th>
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>`;

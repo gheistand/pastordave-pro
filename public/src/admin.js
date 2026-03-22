@@ -207,7 +207,7 @@
       const rows = sermons.map(s => `
         <tr data-sermon-id="${escHtml(s.id)}">
           <td><strong>${escHtml(s.title)}</strong></td>
-          <td>${escHtml(s.pastor)}</td>
+          <td>${escHtml(s.speaker || s.pastor)}</td>
           <td class="date-cell">${escHtml(s.date)}</td>
           <td>${escHtml(s.series)}</td>
           <td>${escHtml(s.scripture)}</td>
@@ -224,8 +224,8 @@
                     <input type="text" id="edit-title-${escHtml(s.id)}" class="edit-title" value="${escHtml(s.title)}" />
                   </div>
                   <div>
-                    <label for="edit-pastor-${escHtml(s.id)}">Speaker/label>
-                    <input type="text" id="edit-pastor-${escHtml(s.id)}" class="edit-pastor" value="${escHtml(s.pastor)}" />
+                    <label for="edit-pastor-${escHtml(s.id)}">Speaker</label>
+                    <input type="text" id="edit-pastor-${escHtml(s.id)}" class="edit-pastor" value="${escHtml(s.speaker || s.pastor)}" />
                   </div>
                   <div>
                     <label for="edit-date-${escHtml(s.id)}">Date</label>

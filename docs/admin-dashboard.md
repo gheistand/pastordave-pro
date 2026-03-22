@@ -24,6 +24,12 @@ npx wrangler d1 execute pastordave-pro --remote \
 
 ## Tabs
 
+### Church Settings
+- Display name, logo URL (with live preview), accent color (color picker)
+- **Weekly Bulletin** — paste current church bulletin; Pastor Dave uses this to answer event/activity questions
+- **Auto-Fetch URL** — set once; cron worker fetches and updates bulletin every Monday automatically
+- NHC pre-seeded: `https://newhorizonchurch.org/about-updates-calendar/weekly-updates`
+
 ### Visitors
 - Lists all visitor records captured by Pastor Dave during conversations
 - Columns: Name, Email, Phone, Interest/Notes, Date

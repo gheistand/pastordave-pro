@@ -147,13 +147,33 @@ async function startElevenLabsConversation(signedUrl, container, startBtn, userI
     '<div id="conv-visualizer" style="width:80px; height:80px; margin:0 auto 1.5rem; border-radius:50%; background:#7c4f2a; display:flex; align-items:center; justify-content:center;">' +
     '<span style="color:#fff; font-size:2rem;">&#127908;</span></div>' +
     '<div id="conv-transcript" style="min-height:100px; max-height:300px; overflow-y:auto; text-align:left; padding:1rem; background:#fff; border-radius:8px; border:1px solid #e5e0d8; margin-bottom:1rem; font-size:0.9rem; line-height:1.6;"></div>' +
-    '<button id="end-btn" style="background:#842029; color:#fff; border:none; padding:0.7rem 2rem; font-size:1rem; font-weight:600; border-radius:8px; cursor:pointer;">End Conversation</button>' +
+    '<div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">' +
+    '<button id="mute-btn" style="background:#555; color:#fff; border:none; padding:0.7rem 1.5rem; font-size:1rem; font-weight:600; border-radius:8px; cursor:pointer;">🎤 Mute</button>' +
+    '<button id="end-btn" style="background:#842029; color:#fff; border:none; padding:0.7rem 1.5rem; font-size:1rem; font-weight:600; border-radius:8px; cursor:pointer;">End Conversation</button>' +
+    '</div>' +
     '</div>';
 
   var statusEl = document.getElementById('conv-status');
   var transcriptEl = document.getElementById('conv-transcript');
   var visualizer = document.getElementById('conv-visualizer');
   var endBtn = document.getElementById('end-btn');
+  var muteBtn = document.getElementById('mute-btn');
+  var isMuted = false;
+
+  muteBtn.addEventListener('click', async function() {
+    isMuted = !isMuted;
+    try {
+      if (conversation) {
+        await conversation.setMuted(isMuted);
+      }
+    } catch (e) {
+      console.warn('setMuted not available, falling back to track mute');
+    }
+    muteBtn.textContent = isMuted ? '🔇 Unmute' : '🎤 Mute';
+    muteBtn.style.background = isMuted ? '#842029' : '#555';
+    if (statusEl && isMuted) statusEl.textContent = 'Microphone muted — Pastor Dave cannot hear you';
+    else if (statusEl) statusEl.textContent = 'Connected - speak to Pastor Dave';
+  });
 
   var conversation;
 

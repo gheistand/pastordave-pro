@@ -37,7 +37,7 @@ export async function onRequestPost({ request, env }) {
     const createdAt = Math.floor(Date.now() / 1000);
 
     await env.DB.prepare(
-      `INSERT INTO sermons (id, church_id, title, pastor, date, series, scripture, summary, key_points, discussion_questions, youtube_id, created_at)
+      `INSERT INTO sermons (id, church_id, title, speaker, date, series, scripture, summary, key_points, discussion_questions, youtube_id, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).bind(
       id,

@@ -26,7 +26,7 @@ export async function onRequestPut({ request, env, params }) {
       values.push(title.trim());
     }
     if (pastor !== undefined) {
-      updates.push('pastor = ?');
+      updates.push('speaker = ?');
       values.push(pastor.trim());
     }
     if (date !== undefined) {

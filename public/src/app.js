@@ -337,7 +337,8 @@ async function loadDiscipleshipContentOnTab() {
   html += '<div class="sermon-header">';
   html += '<h2>' + escapeHtml(sermon.title || 'Sermon') + '</h2>';
   html += '<div class="sermon-meta">';
-  if (sermon.pastor) html += '<div class="sermon-meta-item"><span class="sermon-meta-label">Pastor</span>' + escapeHtml(sermon.pastor) + '</div>';
+  var speakerName = sermon.speaker || sermon.pastor;
+  if (speakerName) html += '<div class="sermon-meta-item"><span class="sermon-meta-label">Speaker</span>' + escapeHtml(speakerName) + '</div>';
   if (sermon.date) html += '<div class="sermon-meta-item"><span class="sermon-meta-label">Date</span>' + escapeHtml(sermon.date) + '</div>';
   if (sermon.series) html += '<div class="sermon-meta-item"><span class="sermon-meta-label">Series</span>' + escapeHtml(sermon.series) + '</div>';
   if (sermon.scripture) html += '<div class="sermon-meta-item"><span class="sermon-meta-label">Scripture</span>' + escapeHtml(sermon.scripture) + '</div>';

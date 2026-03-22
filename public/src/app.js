@@ -160,14 +160,13 @@ async function startElevenLabsConversation(signedUrl, container, startBtn, userI
   var muteBtn = document.getElementById('mute-btn');
   var isMuted = false;
 
-  muteBtn.addEventListener('click', async function() {
+  muteBtn.addEventListener('click', function() {
     isMuted = !isMuted;
-    try {
-      if (conversation) {
-        await conversation.setMuted(isMuted);
-      }
-    } catch (e) {
-      console.warn('setMuted not available, falling back to track mute');
+    // Mute at the browser MediaStream track level — most reliable approach
+    if (micStream) {
+      micStream.getAudioTracks().forEach(function(track) {
+        track.enabled = !isMuted;
+      });
     }
     muteBtn.textContent = isMuted ? '🔇 Unmute' : '🎤 Mute';
     muteBtn.style.background = isMuted ? '#842029' : '#555';
@@ -176,10 +175,11 @@ async function startElevenLabsConversation(signedUrl, container, startBtn, userI
   });
 
   var conversation;
+  var micStream = null;
 
   try {
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       console.log('SDK: Microphone access granted');
     } catch (micErr) {
       console.error('SDK: Microphone access denied:', micErr);

@@ -537,12 +537,21 @@ async function viewConversationTranscript(convId) {
     }
 
     var data = await res.json();
-    var transcript = data.transcript || 'No transcript available';
+    var transcript = data.transcript;
 
-    // Simple modal/alert for transcript
-    var transcriptText = typeof transcript === 'string'
-      ? transcript
-      : JSON.stringify(transcript, null, 2);
+    if (!transcript || transcript.length === 0) {
+      alert('No transcript available for this conversation.');
+      return;
+    }
+
+    // Format transcript array [{role, message}] into readable text
+    var transcriptText = transcript
+      .filter(function(t) { return t.message && t.message.trim(); })
+      .map(function(t) {
+        var speaker = t.role === 'agent' ? 'Pastor Dave' : 'You';
+        return speaker + ': ' + t.message.trim();
+      })
+      .join('\n\n');
 
     alert('Transcript:\n\n' + transcriptText);
   } catch (err) {

@@ -451,6 +451,18 @@ async function saveNotes(sermonId) {
 
 // Past Conversations
 async function loadPastConversations() {
+  // Setup toggle for past conversations header
+  var header = document.querySelector('.past-conversations-header');
+  var listContainer = document.getElementById('past-conversations-list');
+  var toggle = document.querySelector('.past-conversations-toggle');
+
+  if (header && listContainer && toggle) {
+    header.addEventListener('click', function() {
+      listContainer.classList.toggle('open');
+      toggle.classList.toggle('open');
+    });
+  }
+
   try {
     var token = await window.PastorDaveAuth.getSessionToken();
     var res = await fetch('/api/conversations', {
@@ -465,7 +477,6 @@ async function loadPastConversations() {
     var data = await res.json();
     var conversations = data.conversations || [];
 
-    var listContainer = document.getElementById('past-conversations-list');
     if (!listContainer) return;
 
     if (conversations.length === 0) {

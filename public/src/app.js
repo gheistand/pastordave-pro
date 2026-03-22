@@ -123,8 +123,9 @@ async function startConversation() {
 
     var result = await res.json();
     var signed_url = result.signed_url;
+    var userId = result.user_id;
 
-    await startElevenLabsConversation(signed_url, widgetContainer, startBtn);
+    await startElevenLabsConversation(signed_url, widgetContainer, startBtn, userId);
 
     await loadSubscriptionStatus();
   } catch (err) {
@@ -137,7 +138,7 @@ async function startConversation() {
   }
 }
 
-async function startElevenLabsConversation(signedUrl, container, startBtn) {
+async function startElevenLabsConversation(signedUrl, container, startBtn, userId) {
   if (!container) return;
 
   container.innerHTML =
@@ -172,8 +173,13 @@ async function startElevenLabsConversation(signedUrl, container, startBtn) {
     }
 
     console.log('SDK: calling startSession with signedUrl');
-    conversation = await window.client.Conversation.startSession({
+    var sessionOptions = {
       signedUrl: signedUrl,
+    };
+    if (userId) {
+      sessionOptions.dynamicVariables = { user_id: userId };
+    }
+    conversation = await window.client.Conversation.startSession(Object.assign(sessionOptions, {
 
       onConnect: function() {
         console.log('SDK: Connected to Pastor Dave');
@@ -211,7 +217,7 @@ async function startElevenLabsConversation(signedUrl, container, startBtn) {
           visualizer.style.background = '#28a745';
         }
       }
-    });
+    }));
   } catch (err) {
     console.error('SDK startSession failed:', err);
     statusEl.textContent = 'Failed to connect. Please try again.';

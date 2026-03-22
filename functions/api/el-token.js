@@ -114,8 +114,8 @@ export async function onRequestGet(context) {
     ).bind(todayDate, now, userId).run();
   }
 
-  // 6. Return signed URL
-  return new Response(JSON.stringify({ signed_url: signedUrl }), {
+  // 6. Return signed URL and user_id for dynamic variables
+  return new Response(JSON.stringify({ signed_url: signedUrl, user_id: userId }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   });

@@ -131,6 +131,43 @@
       font-size: 0.9rem;
     }
 
+    .app-tab-bar {
+      display: flex;
+      border-bottom: 1px solid #e5e0d8;
+      background: #fff;
+      margin-bottom: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .app-tab-btn {
+      padding: 0.65rem 1.25rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .app-tab-btn:hover {
+      color: var(--brand, #7c4f2a);
+    }
+
+    .app-tab-btn.active {
+      color: var(--brand, #7c4f2a);
+      border-bottom-color: var(--brand, #7c4f2a);
+    }
+
+    .app-panel {
+      display: none;
+    }
+
+    .app-panel.active {
+      display: block;
+    }
+
     #widget-container {
       margin-top: 2rem;
       width: 100%;
@@ -143,6 +180,247 @@
 
     elevenlabs-convai {
       width: 100%;
+    }
+
+    .sermon-header {
+      background: #fff;
+      border: 1px solid #e5e0d8;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .sermon-header h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--brand, #7c4f2a);
+      margin-bottom: 0.5rem;
+    }
+
+    .sermon-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .sermon-meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sermon-meta-label {
+      font-weight: 600;
+      color: #555;
+      font-size: 0.85rem;
+    }
+
+    .sermon-summary {
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    .sermon-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .sermon-section h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--brand, #7c4f2a);
+      margin-bottom: 0.75rem;
+    }
+
+    .sermon-list {
+      list-style: decimal inside;
+      line-height: 1.8;
+      color: #333;
+    }
+
+    .sermon-list li {
+      margin-bottom: 0.5rem;
+    }
+
+    #notes-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.75rem;
+      border: 1px solid #e5e0d8;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+    }
+
+    #notes-textarea:focus {
+      outline: none;
+      border-color: var(--brand, #7c4f2a);
+      box-shadow: 0 0 0 3px rgba(124, 79, 42, 0.1);
+    }
+
+    .notes-button-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      align-items: center;
+    }
+
+    #save-notes-btn {
+      background: var(--brand, #7c4f2a);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #save-notes-btn:hover:not(:disabled) {
+      background: #5e3a1e;
+    }
+
+    #save-notes-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .notes-save-status {
+      font-size: 0.9rem;
+      color: #28a745;
+      display: none;
+    }
+
+    .notes-save-status.show {
+      display: inline-block;
+    }
+
+    .upsell-message {
+      background: #f0f0f0;
+      border: 1px solid #e5e0d8;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .upsell-message p {
+      margin-bottom: 1rem;
+    }
+
+    .upsell-message a {
+      color: var(--brand, #7c4f2a);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .upsell-message a:hover {
+      text-decoration: underline;
+    }
+
+    #past-conversations {
+      background: #fff;
+      border: 1px solid #e5e0d8;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+    }
+
+    .past-conversations-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e5e0d8;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      background: #f8f5f0;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .past-conversations-header:hover {
+      background: #ebe5da;
+    }
+
+    .past-conversations-toggle {
+      display: inline-block;
+      transition: transform 0.2s;
+    }
+
+    .past-conversations-toggle.open {
+      transform: rotate(180deg);
+    }
+
+    .past-conversations-list {
+      display: none;
+      padding: 1rem 1.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .past-conversations-list.open {
+      display: block;
+    }
+
+    .conversation-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      border-bottom: 1px solid #e5e0d8;
+    }
+
+    .conversation-item:last-child {
+      border-bottom: none;
+    }
+
+    .conversation-item-info {
+      flex: 1;
+    }
+
+    .conversation-date {
+      font-weight: 500;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .conversation-duration {
+      font-size: 0.85rem;
+      color: #999;
+    }
+
+    .conversation-view-btn {
+      background: var(--brand, #7c4f2a);
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .conversation-view-btn:hover {
+      background: #5e3a1e;
+    }
+
+    .print-btn {
+      background: none;
+      border: none;
+      color: var(--brand, #7c4f2a);
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0;
+      margin-bottom: 1.5rem;
+    }
+
+    .print-btn:hover {
+      opacity: 0.7;
     }
   </style>
 </head>
@@ -163,12 +441,35 @@
     <h1>Talk with Pastor Dave</h1>
     <p class="tagline">Ask theological questions, practice evangelism, or seek spiritual guidance.</p>
 
-    <button id="start-btn">Start Conversation</button>
+    <div class="app-tab-bar">
+      <button class="app-tab-btn active" data-tab="talk">Talk to Pastor Dave</button>
+      <button class="app-tab-btn" data-tab="discipleship">Discipleship Group</button>
+    </div>
 
-    <div id="limit-message"></div>
-    <div id="error-message"></div>
+    <div id="panel-talk" class="app-panel active">
+      <button id="start-btn">Start Conversation</button>
 
-    <div id="widget-container"></div>
+      <div id="limit-message"></div>
+      <div id="error-message"></div>
+
+      <div id="widget-container"></div>
+
+      <div id="past-conversations">
+        <div class="past-conversations-header">
+          <span class="past-conversations-toggle">▼</span>
+          <span>📋 Past Conversations</span>
+        </div>
+        <div id="past-conversations-list" class="past-conversations-list">
+          <div style="text-align: center; color: #999; padding: 1rem;">Loading conversations…</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-discipleship" class="app-panel">
+      <div id="discipleship-content">
+        <div style="text-align: center; color: #999; padding: 2rem;">Loading sermon content…</div>
+      </div>
+    </div>
   </main>
 
   <!-- ElevenLabs ConvAI widget -->

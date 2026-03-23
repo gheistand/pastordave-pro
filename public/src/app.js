@@ -513,19 +513,22 @@ async function loadPastConversations() {
 
     var html = '';
     conversations.forEach(function(conv) {
+      var convId = conv.conversation_id || conv.id;
       var dateStr = conv.start_time_unix_secs
-        ? new Date(conv.start_time_unix_secs * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+        ? new Date(conv.start_time_unix_secs * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
         : 'Unknown date';
-      var duration = conv.duration_seconds
-        ? Math.floor(conv.duration_seconds / 60) + 'm ' + (conv.duration_seconds % 60) + 's'
+      var durationSecs = conv.call_duration_secs || conv.duration_seconds || 0;
+      var duration = durationSecs
+        ? Math.floor(durationSecs / 60) + 'm ' + (durationSecs % 60) + 's'
         : 'Unknown duration';
+      var title = conv.call_summary_title || 'Conversation';
 
       html += '<div class="conversation-item">';
       html += '<div class="conversation-item-info">';
-      html += '<div class="conversation-date">' + dateStr + '</div>';
-      html += '<div class="conversation-duration">' + duration + '</div>';
+      html += '<div class="conversation-date"><strong>' + escapeHtml(title) + '</strong></div>';
+      html += '<div class="conversation-duration">' + dateStr + ' &bull; ' + duration + '</div>';
       html += '</div>';
-      html += '<button class="conversation-view-btn" data-conv-id="' + escapeHtml(conv.id) + '">View Transcript</button>';
+      html += '<button class="conversation-view-btn" data-conv-id="' + escapeHtml(convId) + '">View Transcript</button>';
       html += '</div>';
     });
 

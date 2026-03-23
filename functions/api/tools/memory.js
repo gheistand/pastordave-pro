@@ -18,7 +18,7 @@ function json(data, status = 200) {
   });
 }
 
-// GET — fetch memories for user
+// GET — fetch memories for user (query param based)
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const user_id = url.searchParams.get('user_id');
@@ -26,25 +26,11 @@ export async function onRequestGet({ request, env }) {
   if (!user_id) return json({ memories: [], error: 'user_id query param required' }, 400);
   if (!env.MEM0_API_KEY) return json({ memories: [], error: 'MEM0_API_KEY not configured' });
 
-  try {
-    const res = await fetch(`${MEM0_BASE}/memories/?user_id=${encodeURIComponent(user_id)}&limit=20`, {
-      headers: {
-        Authorization: `Token ${env.MEM0_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!res.ok) throw new Error(`Mem0 API error: ${res.status}`);
-    const data = await res.json();
-    const memories = (data.results || data || [])
-      .map(m => m.memory || m.text || String(m))
-      .filter(Boolean);
-    return json({ memories, count: memories.length });
-  } catch (err) {
-    return json({ memories: [], error: err.message });
-  }
+  return fetchMemories(user_id, env);
 }
 
-// POST — save a memory for user
+// POST — unified endpoint: action="get" fetches, action="save" (or memory field) saves
+// Both get_user_memory and save_user_memory tools POST here
 export async function onRequestPost({ request, env }) {
   if (!env.MEM0_API_KEY) return json({ success: false, error: 'MEM0_API_KEY not configured' });
 
@@ -59,9 +45,16 @@ export async function onRequestPost({ request, env }) {
   const p = body.parameters || body;
   const user_id = p.user_id;
   const memory = p.memory || p.text || p.content;
+  const action = p.action || (memory ? 'save' : 'get');
 
-  if (!user_id) return json({ success: false, error: 'user_id required in body' }, 400);
-  if (!memory) return json({ success: false, error: 'memory field required' }, 400);
+  if (!user_id) return json({ success: false, error: 'user_id required' }, 400);
+
+  if (action === 'get') {
+    return fetchMemories(user_id, env);
+  }
+
+  // Save memory
+  if (!memory) return json({ success: false, error: 'memory field required for save' }, 400);
 
   try {
     const res = await fetch(`${MEM0_BASE}/memories/`, {
@@ -83,6 +76,25 @@ export async function onRequestPost({ request, env }) {
     return json({ success: true });
   } catch (err) {
     return json({ success: false, error: err.message });
+  }
+}
+
+async function fetchMemories(user_id, env) {
+  try {
+    const res = await fetch(`${MEM0_BASE}/memories/?user_id=${encodeURIComponent(user_id)}&limit=20`, {
+      headers: {
+        Authorization: `Token ${env.MEM0_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!res.ok) throw new Error(`Mem0 API error: ${res.status}`);
+    const data = await res.json();
+    const memories = (data.results || data || [])
+      .map(m => m.memory || m.text || String(m))
+      .filter(Boolean);
+    return json({ memories, count: memories.length });
+  } catch (err) {
+    return json({ memories: [], error: err.message });
   }
 }
 

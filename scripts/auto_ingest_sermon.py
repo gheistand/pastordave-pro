@@ -101,6 +101,9 @@ def parse_date_from_title(title, pub_date_fallback):
         month = months[m.group(1)]
         day = m.group(2).zfill(2)
         year = m.group(3)
+        # Fix RSS feed typo: 2926 → 2026
+        if int(year) > 2030:
+            year = str(int(year) - 900)
         return f'{year}-{month}-{day}'
 
     # Fallback: parse pub_date (e.g. "Wed, 18 Mar 2026 13:00:02 +0000")

@@ -1,4 +1,5 @@
 # Mem0 Persistent Memory Integration
+*Updated 2026-03-22 — fully working ✅*
 
 Pastor Dave uses [Mem0](https://mem0.ai) to remember users across conversations — their name, prayer requests, spiritual journey, and preferences.
 
@@ -95,3 +96,48 @@ Add these tools in the ElevenLabs agent dashboard under **Tools**:
 Add the following to the ElevenLabs agent system prompt:
 
 > At the start of every conversation, call `get_user_memory` with the `{{user_id}}` variable to retrieve what you know about this person. Reference their name and past conversations naturally — greet them by name if you know it, recall prayer requests, acknowledge spiritual milestones. When they share something significant (their name, a prayer request, a life event, a spiritual milestone, or a strong preference), call `save_user_memory` to remember it for future conversations.
+
+---
+
+## Working Configuration (as of 2026-03-22)
+
+### Endpoint
+`POST /api/tools/memory` — handles both get and save via `action` body param.
+
+- `action: "get"` + `user_id` → returns memories array
+- `action: "save"` (or `memory` field present) + `user_id` + `memory` → saves memory
+
+### Why POST for both tools
+ElevenLabs does not support dynamic variables in URL path segments. Using POST with body params avoids the `{{user_id}}` URL validation issue entirely.
+
+### ElevenLabs Tool Config (WORKING)
+
+**get_user_memory:**
+- Method: POST
+- URL: `https://pastordavepro.org/api/tools/memory`
+- Body params: `user_id` (string, required), `action` (string, required, always "get")
+
+**save_user_memory:**
+- Method: POST
+- URL: `https://pastordavepro.org/api/tools/memory`
+- Body params: `user_id` (string, required), `memory` (string, required)
+
+### System Prompt Addition (WORKING)
+> At the start of every conversation, call `get_user_memory` to retrieve what you know about this person. If their name is in the memories, greet them by name warmly. Reference past prayer requests or conversations naturally — don't announce that you're reading from memory, just use it to be genuinely personal.
+>
+> As the conversation progresses, whenever the user shares something significant — their name, a prayer request, a life event, a spiritual milestone, or a strong preference — call `save_user_memory` immediately to preserve it for future conversations.
+>
+> For the `user_id` parameter in both tools, use the user_id value that was provided at the start of this conversation via dynamic variables. If no user_id was provided, use the value "anonymous".
+
+### Tested Behavior
+- Pastor Dave remembers user name across sessions ✅
+- Pastor Dave remembers prayer requests, preferences, life events ✅
+- Memories saved mid-conversation via `save_user_memory` ✅
+- Memories retrieved at conversation start via `get_user_memory` ✅
+
+### Dynamic Variable Flow
+1. User logs in → Clerk user ID retrieved
+2. `el-token.js` returns `{ signed_url, user_id }`
+3. `app.js` passes `dynamicVariables: { user_id }` to `Conversation.startSession()`
+4. ElevenLabs agent receives `user_id` as a dynamic variable
+5. Agent passes `user_id` as body param when calling memory tools

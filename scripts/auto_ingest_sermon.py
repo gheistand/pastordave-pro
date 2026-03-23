@@ -113,20 +113,18 @@ def parse_date_from_title(title, pub_date_fallback):
 def get_existing_dates(church_id):
     """Get sermon dates already in D1"""
     result = subprocess.run(
-        ['npx', 'wrangler', 'd1', 'execute', DB_NAME, '--remote',
+        ['npx', 'wrangler', 'd1', 'execute', DB_NAME, '--remote', '--json',
          '--command', f"SELECT date FROM sermons WHERE church_id = '{church_id}' ORDER BY date DESC LIMIT 20;"],
         capture_output=True, text=True, cwd=Path(__file__).parent.parent
     )
     existing = set()
     try:
-        out = result.stdout
-        idx = out.find('[')
-        if idx >= 0:
-            data = json.loads(out[idx:])
-            for row in data[0].get('results', []):
-                existing.add(row.get('date', ''))
-    except Exception:
-        pass
+        data = json.loads(result.stdout)
+        for row in data[0].get('results', []):
+            existing.add(row.get('date', ''))
+    except Exception as e:
+        log(f'Warning: could not parse D1 dates: {e}')
+    log(f'Existing dates in D1: {existing}')
     return existing
 
 
@@ -248,6 +246,7 @@ def main():
     parser.add_argument('--limit', type=int, default=1, help='Max episodes to process')
     parser.add_argument('--church-id', default=CHURCH_ID)
     parser.add_argument('--force', action='store_true', help='Re-process even if date exists in D1')
+    parser.add_argument('--auto-confirm', action='store_true', help='Skip confirmation prompt (for cron/unattended runs)')
     args = parser.parse_args()
 
     assemblyai_key = os.environ.get('ASSEMBLYAI_API_KEY')
@@ -303,10 +302,11 @@ def main():
             print(f'  {i}. {q}')
 
         if not args.dry_run:
-            confirm = input('\nInsert into D1? [y/N] ').strip().lower()
-            if confirm != 'y':
-                log('Skipped.')
-                continue
+            if not args.auto_confirm:
+                confirm = input('\nInsert into D1? [y/N] ').strip().lower()
+                if confirm != 'y':
+                    log('Skipped.')
+                    continue
 
         insert_sermon(args.church_id, ep['title'], ep['speaker'],
                      ep['date'], transcript, analysis, args.dry_run)

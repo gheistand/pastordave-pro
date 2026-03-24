@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pastor Dave Pro — Discipleship Group Tools</title>
+  <style>
+    :root { --brand: #7c4f2a; --brand-dark: #6a4224; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8f5f0;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 0.75rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      border-bottom: 1px solid #e5e0d8;
+    }
+
+    .logo { font-size: 1.1rem; font-weight: 700; color: var(--brand); }
+
+    nav { display: flex; gap: 1.5rem; align-items: center; }
+    nav a { color: var(--brand); text-decoration: none; font-size: 0.9rem; }
+    nav a:hover { text-decoration: underline; }
+
+    #status-bar {
+      background: #fff;
+      border-bottom: 1px solid #e5e0d8;
+      padding: 0.5rem 2rem;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .tier-church { background: #cfe2ff; color: #084298; }
+
+    main {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--brand);
+      margin-bottom: 0.25rem;
+    }
+
+    .page-subtitle {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Tab navigation */
+    .tab-bar {
+      display: flex;
+      border-bottom: 2px solid #e5e0d8;
+      background: #fff;
+      border-radius: 8px 8px 0 0;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 0.75rem 1.1rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+      margin-bottom: -2px;
+    }
+    .tab-btn:hover { color: var(--brand); }
+    .tab-btn.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+    .tab-panel { display: none; padding: 1.5rem 0; }
+    .tab-panel.active { display: block; }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border: 1px solid #e5e0d8;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--brand);
+      margin-bottom: 0.75rem;
+    }
+
+    .card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Form elements */
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 0.55rem 0.75rem;
+      border: 1px solid #d0c8bc;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: #fff;
+      color: #1a1a1a;
+      transition: border-color 0.15s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(124, 79, 42, 0.1);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-primary { background: var(--brand); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--brand-dark); }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--brand);
+      border: 1.5px solid var(--brand);
+    }
+    .btn-secondary:hover:not(:disabled) { background: #f8f5f0; }
+
+    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.82rem; }
+
+    .btn-group { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem; }
+
+    /* Loading / status */
+    .loading { color: #999; font-size: 0.9rem; text-align: center; padding: 1rem; }
+    .status-msg {
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-top: 0.75rem;
+    }
+    .status-msg.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .status-msg.error   { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+    .status-msg.info    { background: #cfe2ff; color: #084298; border: 1px solid #b6d4fe; }
+
+    /* Sermon info card */
+    .sermon-info {
+      background: #faf8f5;
+      border: 1px solid #e5e0d8;
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      font-size: 0.9rem;
+    }
+    .sermon-info .sermon-title { font-weight: 700; color: var(--brand); font-size: 1rem; }
+    .sermon-info .sermon-meta { color: #666; font-size: 0.85rem; margin-top: 0.2rem; }
+
+    /* Readings list */
+    .readings-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .readings-list li {
+      padding: 0.4rem 0;
+      border-bottom: 1px solid #f0ece6;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    .readings-list li:last-child { border-bottom: none; }
+    .readings-day { font-weight: 600; color: #888; font-size: 0.78rem; min-width: 40px; display: inline-block; }
+
+    /* HHH guide output */
+    .guide-output { margin-top: 1.25rem; }
+
+    .hhh-section {
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid transparent;
+    }
+    .hhh-section.head  { border-left-color: #3b82f6; background: #eff6ff; }
+    .hhh-section.heart { border-left-color: #ef4444; background: #fff5f5; }
+    .hhh-section.hands { border-left-color: #22c55e; background: #f0fdf4; }
+
+    .hhh-section h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+    .hhh-section.head  h3 { color: #1d4ed8; }
+    .hhh-section.heart h3 { color: #dc2626; }
+    .hhh-section.hands h3 { color: #15803d; }
+
+    .hhh-guiding {
+      font-style: italic;
+      font-size: 0.875rem;
+      color: #555;
+      margin-bottom: 0.6rem;
+    }
+
+    .hhh-questions {
+      list-style: decimal inside;
+      padding: 0;
+      margin: 0;
+    }
+    .hhh-questions li {
+      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .key-verse-box {
+      background: #fff;
+      border: 1px solid #e5e0d8;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .key-verse-ref { font-weight: 700; color: var(--brand); }
+
+    /* Agenda output */
+    .agenda-output {
+      background: #fff;
+      border: 1px solid #e5e0d8;
+      border-radius: 8px;
+      padding: 1.25rem;
+      white-space: pre-wrap;
+      font-size: 0.875rem;
+      line-height: 1.7;
+      font-family: inherit;
+      margin-top: 1rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    /* Saved item rows */
+    .saved-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid #e5e0d8;
+      gap: 1rem;
+    }
+    .saved-item:last-child { border-bottom: none; }
+    .saved-item-info { flex: 1; }
+    .saved-item-title { font-weight: 600; font-size: 0.9rem; }
+    .saved-item-meta { font-size: 0.8rem; color: #888; margin-top: 0.2rem; }
+    .saved-item-actions { display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0; }
+
+    /* Onboarding gate */
+    .onboarding-gate {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: #555;
+    }
+    .onboarding-gate h2 { color: var(--brand); margin-bottom: 0.75rem; }
+    .onboarding-gate p { margin-bottom: 1.5rem; line-height: 1.6; }
+
+    /* Church-tier gate */
+    .tier-gate {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e5e0d8;
+    }
+    .tier-gate h2 { color: var(--brand); margin-bottom: 0.75rem; }
+    .tier-gate p { margin-bottom: 1.5rem; line-height: 1.6; color: #555; }
+
+    /* Checkbox group */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .checkbox-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+
+    /* Share link input */
+    .share-link-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    .share-link-row input {
+      flex: 1;
+      padding: 0.45rem 0.7rem;
+      border: 1px solid #d0c8bc;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      background: #faf8f5;
+    }
+
+    /* Print styles */
+    @media print {
+      header, #status-bar, .tab-bar, .btn-group, .btn, nav { display: none !important; }
+      main { max-width: 100%; padding: 0; }
+      .tab-panel { display: block !important; }
+      .tab-panel:not(.active) { display: none !important; }
+      .agenda-output { max-height: none; border: none; }
+      body { background: #fff; }
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 0.75rem 1rem; }
+      main { padding: 1rem; }
+      .form-row { flex-direction: column; }
+      .form-group { min-width: auto; }
+      .tab-btn { padding: 0.6rem 0.75rem; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="logo">Pastor Dave Pro</span>
+    <nav>
+      <a href="/app.html">App</a>
+      <a href="/pricing.html">Pricing</a>
+      <div id="user-button"></div>
+    </nav>
+  </header>
+
+  <div id="status-bar">Loading…</div>
+
+  <main>
+    <h1>Discipleship Group Tools</h1>
+    <p class="page-subtitle">Generate discussion guides, build meeting agendas, and equip your small group leader.</p>
+
+    <div id="tier-gate" class="tier-gate" style="display:none;">
+      <h2>Church Tier Required</h2>
+      <p>Discipleship Group Tools are available on the Church plan.<br>Upgrade to unlock discussion guide generation, agenda building, and more.</p>
+      <a href="/pricing.html" class="btn btn-primary">View Pricing</a>
+    </div>
+
+    <div id="app-content" style="display:none;">
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="guide-generator">Discussion Guide</button>
+        <button class="tab-btn" data-tab="agenda-builder">Agenda Builder</button>
+        <button class="tab-btn" data-tab="saved-guides">Saved Guides</button>
+        <button class="tab-btn" data-tab="saved-agendas">Saved Agendas</button>
+        <button class="tab-btn" data-tab="group-settings">Group Settings</button>
+      </div>
+
+      <!-- Tab 1: Discussion Guide Generator -->
+      <div id="panel-guide-generator" class="tab-panel active">
+        <div id="guide-onboarding-gate" class="onboarding-gate" style="display:none;">
+          <h2>Set Up Your Group First</h2>
+          <p>Before generating a discussion guide, please configure your group settings so we can personalize the output.</p>
+          <button class="btn btn-primary" onclick="DG.switchTab('group-settings')">Configure Group Settings</button>
+        </div>
+
+        <div id="guide-generator-content">
+          <!-- Date picker + auto-load section -->
+          <div class="card">
+            <h2>This Week's Meeting</h2>
+            <div class="form-row">
+              <div class="form-group" style="max-width:220px;">
+                <label for="meeting-date-input">Meeting Date</label>
+                <input type="date" id="meeting-date-input" />
+              </div>
+              <div class="form-group" style="max-width:260px;">
+                <label for="week-theme-input">Week Theme (optional)</label>
+                <input type="text" id="week-theme-input" placeholder="e.g. God's Faithfulness" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Sermon card -->
+          <div class="card">
+            <h2>This Week's Sermon</h2>
+            <div id="sermon-card">
+              <div class="loading">Loading sermon…</div>
+            </div>
+          </div>
+
+          <!-- Readings card -->
+          <div class="card">
+            <h2>Weekly Bible Readings</h2>
+            <p style="font-size:0.85rem; color:#888; margin-bottom:0.75rem;">One Year Bible readings for the 7 days leading to your meeting.</p>
+            <div id="readings-card">
+              <div class="loading">Loading readings…</div>
+            </div>
+          </div>
+
+          <!-- Generate button + output -->
+          <div class="card">
+            <h2>Discussion Guide</h2>
+            <button id="generate-guide-btn" class="btn btn-primary" onclick="DG.generateGuide()">
+              Generate Guide
+            </button>
+            <div id="guide-status"></div>
+            <div id="guide-output" class="guide-output" style="display:none;"></div>
+            <div id="guide-actions" class="btn-group" style="display:none;">
+              <button class="btn btn-secondary btn-sm" onclick="DG.copyGuide()">Copy Markdown</button>
+              <button class="btn btn-secondary btn-sm" onclick="DG.saveGuide()">Save Guide</button>
+              <button class="btn btn-secondary btn-sm" onclick="DG.generateGuide()">Regenerate</button>
+              <button class="btn btn-primary btn-sm" onclick="DG.buildAgendaFromGuide()">Build Agenda →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Agenda Builder -->
+      <div id="panel-agenda-builder" class="tab-panel">
+        <div class="card">
+          <h2>Agenda Details</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agenda-date">Meeting Date</label>
+              <input type="date" id="agenda-date" />
+            </div>
+            <div class="form-group">
+              <label for="agenda-location">Location</label>
+              <input type="text" id="agenda-location" placeholder="e.g. Community Room B" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agenda-opening-prayer">Opening Prayer Led By</label>
+              <input type="text" id="agenda-opening-prayer" placeholder="Name" />
+            </div>
+            <div class="form-group">
+              <label for="agenda-closing-prayer">Closing Prayer Led By</label>
+              <input type="text" id="agenda-closing-prayer" placeholder="Name" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agenda-worship-song">Worship Song</label>
+              <input type="text" id="agenda-worship-song" placeholder="Song title or 'No worship this week'" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agenda-announcements">Announcements</label>
+              <textarea id="agenda-announcements" placeholder="Any announcements for the group…"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="agenda-next-week">Next Week Preview</label>
+              <input type="text" id="agenda-next-week" placeholder="e.g. Reading: John 5-8, Theme: Healing" />
+            </div>
+          </div>
+          <p style="font-size:0.82rem; color:#999; margin-top:0.5rem;">
+            The discussion guide content (HEAD/HEART/HANDS questions) will be pulled from the last generated guide, or you can select a saved guide.
+          </p>
+          <div class="form-group" style="margin-top:0.75rem;">
+            <label for="agenda-guide-select">Use Saved Guide (optional)</label>
+            <select id="agenda-guide-select">
+              <option value="">— Use last generated guide —</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="build-agenda-btn" class="btn btn-primary" onclick="DG.buildAgenda()">
+          Build Agenda
+        </button>
+        <div id="agenda-status"></div>
+
+        <div id="agenda-output-section" style="display:none; margin-top:1.25rem;">
+          <div class="card" style="padding:0.75rem 1rem;">
+            <h2 style="margin-bottom:0.75rem;">Agenda Preview</h2>
+            <pre id="agenda-output" class="agenda-output"></pre>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-secondary btn-sm" onclick="DG.copyAgenda()">Copy</button>
+            <button class="btn btn-secondary btn-sm" onclick="DG.saveAgenda()">Save Agenda</button>
+            <button class="btn btn-secondary btn-sm" onclick="window.print()">Print</button>
+          </div>
+          <div id="agenda-share-section" style="display:none; margin-top:0.75rem;">
+            <p style="font-size:0.85rem; font-weight:600; color:#555;">Share Link:</p>
+            <div class="share-link-row">
+              <input type="text" id="agenda-share-link" readonly />
+              <button class="btn btn-secondary btn-sm" onclick="DG.copyShareLink()">Copy Link</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Saved Guides -->
+      <div id="panel-saved-guides" class="tab-panel">
+        <div class="card" style="padding:0;">
+          <div id="saved-guides-list">
+            <div class="loading">Loading saved guides…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Saved Agendas -->
+      <div id="panel-saved-agendas" class="tab-panel">
+        <div class="card" style="padding:0;">
+          <div id="saved-agendas-list">
+            <div class="loading">Loading saved agendas…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 5: Group Settings -->
+      <div id="panel-group-settings" class="tab-panel">
+        <div class="card">
+          <h2>Group Profile</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="settings-group-name">Group Name *</label>
+              <input type="text" id="settings-group-name" placeholder="e.g. Thursday Night Group" />
+            </div>
+            <div class="form-group">
+              <label for="settings-group-type">Group Type</label>
+              <select id="settings-group-type">
+                <option value="">Select…</option>
+                <option value="small_group">Small Group</option>
+                <option value="life_group">Life Group</option>
+                <option value="bible_study">Bible Study</option>
+                <option value="discipleship">Discipleship Group</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex:2;">
+              <label for="settings-group-desc">Group Description</label>
+              <textarea id="settings-group-desc" placeholder="Brief description of your group's focus or demographic…"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="settings-leader-name">Leader Name</label>
+              <input type="text" id="settings-leader-name" placeholder="Your name" />
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Meeting Details</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="settings-meeting-day">Meeting Day</label>
+              <select id="settings-meeting-day">
+                <option value="">Select…</option>
+                <option value="Sunday">Sunday</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="settings-meeting-time">Meeting Time</label>
+              <input type="time" id="settings-meeting-time" />
+            </div>
+            <div class="form-group">
+              <label for="settings-meeting-length">Default Meeting Length</label>
+              <select id="settings-meeting-length">
+                <option value="60">60 minutes</option>
+                <option value="75" selected>75 minutes</option>
+                <option value="90">90 minutes</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="settings-meeting-location">Meeting Location</label>
+              <input type="text" id="settings-meeting-location" placeholder="e.g. Community Room B" />
+            </div>
+            <div class="form-group">
+              <label for="settings-bible-translation">Bible Translation</label>
+              <select id="settings-bible-translation">
+                <option value="NLT">NLT (New Living Translation)</option>
+                <option value="NIV">NIV (New International Version)</option>
+                <option value="ESV">ESV (English Standard Version)</option>
+                <option value="KJV">KJV (King James Version)</option>
+                <option value="NASB">NASB (New American Standard)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Guide Preferences</h2>
+          <div class="checkbox-row">
+            <input type="checkbox" id="settings-follow-tyndale" checked />
+            <label for="settings-follow-tyndale">Follow Tyndale One Year Bible reading plan</label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="settings-use-hhh" checked />
+            <label for="settings-use-hhh">Use Head/Heart/Hands (HHH) framework for discussion guides</label>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="DG.saveSettings()">Save Settings</button>
+        <div id="settings-status"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Clerk -->
+  <script>window.CLERK_PUBLISHABLE_KEY = 'pk_live_Y2xlcmsucGFzdG9yZGF2ZXByby5vcmck';</script>
+  <script
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_live_Y2xlcmsucGFzdG9yZGF2ZXByby5vcmck"
+    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5.125.7/dist/clerk.browser.js"
+    type="text/javascript"
+  ></script>
+
+  <script src="/src/auth.js"></script>
+  <script src="/src/discipleship-group.js"></script>
+</body>
+</html>

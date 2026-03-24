@@ -306,7 +306,7 @@ function initTabSwitching() {
       });
 
       if (tabId === 'discipleship') {
-        loadDiscipleshipContentOnTab();
+        window.location.href = '/discipleship-group.html';
       }
     });
   });

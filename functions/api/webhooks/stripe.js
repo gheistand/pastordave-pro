@@ -73,6 +73,8 @@ export async function onRequestPost(context) {
     function tierFromPriceId(priceId) {
       if (priceId === env.STRIPE_PRO_PRICE_ID) return 'pro';
       if (priceId === env.STRIPE_CHURCH_PRICE_ID) return 'church';
+      if (priceId === env.STRIPE_CHURCH_STARTER_PRICE_ID) return 'church';
+      if (priceId === env.STRIPE_CHURCH_GROWTH_PRICE_ID) return 'church';
       return null;
     }
 

@@ -63,7 +63,7 @@ export async function onRequestGet(context) {
     JSON.stringify({
       tier: user.tier,
       conversations_today: isPaid ? null : conversationsToday,
-      conversations_limit: isPaid ? null : 2,
+      conversations_limit: isPaid ? null : 3,
     }),
     { status: 200, headers: { 'Content-Type': 'application/json' } }
   );

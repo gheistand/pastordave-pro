@@ -74,15 +74,20 @@ export async function onRequestPost(context) {
   }
 
   const { tier } = body;
-  if (tier !== 'pro' && tier !== 'church') {
+  const validTiers = ['pro', 'church_starter', 'church_growth'];
+  if (!validTiers.includes(tier)) {
     return new Response(
-      JSON.stringify({ error: 'tier must be "pro" or "church"' }),
+      JSON.stringify({ error: 'tier must be "pro", "church_starter", or "church_growth"' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  const priceId =
-    tier === 'pro' ? env.STRIPE_PRO_PRICE_ID : env.STRIPE_CHURCH_PRICE_ID;
+  const priceIdMap = {
+    pro: env.STRIPE_PRO_PRICE_ID,
+    church_starter: env.STRIPE_CHURCH_STARTER_PRICE_ID,
+    church_growth: env.STRIPE_CHURCH_GROWTH_PRICE_ID,
+  };
+  const priceId = priceIdMap[tier];
 
   // 3. Look up existing Stripe customer ID
   const dbUser = await env.DB.prepare(

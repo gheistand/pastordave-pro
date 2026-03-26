@@ -1,13 +1,32 @@
 // pricing.js — logic for pricing.html
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await window.Clerk.load();
+  await window.PastorDaveAuth.clerkReady;
 
   // Mount user button if signed in
   const userButtonContainer = document.getElementById('user-button');
   if (userButtonContainer && window.Clerk.user) {
     window.PastorDaveAuth.mountUserButton(userButtonContainer);
   }
+
+  // Annual/monthly toggle
+  const toggle = document.getElementById('billing-toggle');
+  const labelMonthly = document.getElementById('label-monthly');
+  const labelAnnual = document.getElementById('label-annual');
+
+  toggle?.addEventListener('change', () => {
+    const isAnnual = toggle.checked;
+    labelMonthly.classList.toggle('active', !isAnnual);
+    labelAnnual.classList.toggle('active', isAnnual);
+
+    document.querySelectorAll('.price-val').forEach(el => {
+      el.textContent = isAnnual ? el.dataset.annual : el.dataset.monthly;
+    });
+
+    document.querySelectorAll('.annual-note').forEach(el => {
+      el.style.display = isAnnual ? '' : 'none';
+    });
+  });
 
   // Highlight current tier if signed in
   if (window.Clerk.user) {
@@ -16,7 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Wire up checkout buttons
   document.getElementById('btn-get-pro')?.addEventListener('click', () => startCheckout('pro'));
-  document.getElementById('btn-get-church')?.addEventListener('click', () => startCheckout('church'));
+  document.getElementById('btn-get-church_starter')?.addEventListener('click', () => startCheckout('church_starter'));
+  document.getElementById('btn-get-church_growth')?.addEventListener('click', () => startCheckout('church_growth'));
 });
 
 async function highlightCurrentTier() {
@@ -29,10 +49,11 @@ async function highlightCurrentTier() {
 
     const { tier } = await res.json();
 
+    // D1 stores "church" for both church plans — highlight the appropriate card
     const cardMap = {
       free: 'card-free',
       pro: 'card-pro',
-      church: 'card-church',
+      church: 'card-church-starter', // default to starter for "church" tier display
     };
 
     const cardId = cardMap[tier];
@@ -47,37 +68,39 @@ async function highlightCurrentTier() {
       }
     }
 
-    // Update CTA buttons for already-subscribed tiers
+    // Disable CTA for current plan
     if (tier === 'pro') {
       const btn = document.getElementById('btn-get-pro');
-      if (btn) {
-        btn.textContent = 'Current Plan';
-        btn.disabled = true;
-      }
+      if (btn) { btn.textContent = 'Current Plan'; btn.disabled = true; }
     }
     if (tier === 'church') {
-      const btn = document.getElementById('btn-get-church');
-      if (btn) {
-        btn.textContent = 'Current Plan';
-        btn.disabled = true;
-      }
+      const btnS = document.getElementById('btn-get-church_starter');
+      const btnG = document.getElementById('btn-get-church_growth');
+      if (btnS) { btnS.textContent = 'Current Plan'; btnS.disabled = true; }
+      if (btnG) { btnG.textContent = 'Current Plan'; btnG.disabled = true; }
     }
   } catch (err) {
     console.error('Failed to load current tier:', err);
   }
 }
 
+const BUTTON_LABELS = {
+  pro: 'Start Personal Pro',
+  church_starter: 'Start Church Starter',
+  church_growth: 'Start Church Growth',
+};
+
 async function startCheckout(tier) {
+  // If not signed in, redirect to sign-in first
+  if (!window.Clerk.user) {
+    window.location.href = '/app.html';
+    return;
+  }
+
   const btn = document.getElementById(`btn-get-${tier}`);
   if (btn) {
     btn.disabled = true;
     btn.textContent = 'Redirecting…';
-  }
-
-  // If not signed in, send to index to authenticate first
-  if (!window.Clerk.user) {
-    window.location.href = `/index.html?redirect=pricing&tier=${tier}`;
-    return;
   }
 
   try {
@@ -104,7 +127,7 @@ async function startCheckout(tier) {
     }
     if (btn) {
       btn.disabled = false;
-      btn.textContent = tier === 'pro' ? 'Get Pro' : 'Get Church Plan';
+      btn.textContent = BUTTON_LABELS[tier] ?? 'Get Started';
     }
   }
 }

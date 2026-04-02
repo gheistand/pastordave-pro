@@ -627,7 +627,6 @@
         var data = await res.json();
 
         this.conversation = await window.client.Conversation.startSession({
-          agentId: this.agentId,
           signedUrl: data.signed_url,
           dynamicVariables: { user_id: data.user_id || 'anonymous' },
           overrides: { conversation: { textOnly: true } },

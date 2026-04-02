@@ -621,9 +621,9 @@
         this.container.querySelector('.chat-messages').innerHTML = '';
         this.container.querySelector('.chat-input-container').style.display = 'flex';
 
-        // Get signed URL for auth
+        // Get signed URL for auth (pass agent_id so it signs for this specific agent)
         var token = await window.PastorDaveAuth.getSessionToken();
-        var res = await fetch('/api/el-token', { headers: { Authorization: 'Bearer ' + token } });
+        var res = await fetch('/api/el-token?agent_id=' + this.agentId, { headers: { Authorization: 'Bearer ' + token } });
         var data = await res.json();
 
         this.conversation = await window.client.Conversation.startSession({

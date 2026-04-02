@@ -74,10 +74,12 @@ export async function onRequestGet(context) {
   }
 
   // 4. Get signed ElevenLabs conversation token
+  const urlParams = new URL(request.url).searchParams;
+  const targetAgentId = urlParams.get('agent_id') || env.ELEVENLABS_AGENT_ID;
   let signedUrl;
   try {
     const elResponse = await fetch(
-      `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${env.ELEVENLABS_AGENT_ID}`,
+      `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${targetAgentId}`,
       {
         method: 'GET',
         headers: { 'xi-api-key': env.ELEVENLABS_API_KEY },

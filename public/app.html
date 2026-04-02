@@ -428,6 +428,32 @@
       20%, 40% { transform: rotate(15deg); }
       50% { transform: rotate(0deg); }
     }
+    /* Text interface */
+    .text-interface { background:#fff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.08); border:1px solid #e5e0d8; overflow:hidden; }
+    .text-header { display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; background:#f8f5f0; border-bottom:1px solid #e5e0d8; }
+    .text-status { display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:#555; }
+    .status-indicator { width:10px; height:10px; border-radius:50%; background:#ccc; }
+    .status-indicator.status-connected { background:#22c55e; }
+    .status-indicator.status-connecting { background:#f59e0b; animation:pulse 1s infinite; }
+    .status-indicator.status-error { background:#ef4444; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .text-controls-header { display:flex; gap:0.5rem; }
+    .chat-container { height:380px; display:flex; flex-direction:column; }
+    .chat-messages { flex:1; overflow-y:auto; padding:1.25rem; display:flex; flex-direction:column; gap:0.75rem; }
+    .chat-msg { max-width:80%; padding:0.65rem 1rem; border-radius:12px; font-size:0.92rem; line-height:1.5; }
+    .chat-msg.user { align-self:flex-end; background:#7c4f2a; color:#fff; border-bottom-right-radius:3px; }
+    .chat-msg.agent { align-self:flex-start; background:#f0ebe4; color:#1a1a1a; border-bottom-left-radius:3px; }
+    .chat-msg strong { display:block; font-size:0.75rem; opacity:0.7; margin-bottom:0.2rem; }
+    .welcome-message { text-align:center; color:#888; padding:2rem 1rem; font-size:0.9rem; }
+    .chat-input-container { display:none; padding:0.75rem 1rem; border-top:1px solid #e5e0d8; gap:0.5rem; align-items:flex-end; }
+    .message-input { flex:1; border:1px solid #e5e0d8; border-radius:8px; padding:0.6rem 0.75rem; font-size:0.9rem; font-family:inherit; resize:none; outline:none; }
+    .message-input:focus { border-color:#7c4f2a; }
+    .send-btn { background:#7c4f2a; color:#fff; border:none; border-radius:8px; padding:0.6rem 1rem; cursor:pointer; font-size:0.88rem; font-weight:600; white-space:nowrap; }
+    .send-btn:hover { background:#6a4324; }
+    .text-info { padding:0.75rem 1.25rem; font-size:0.8rem; color:#999; border-top:1px solid #f0ebe4; text-align:center; }
+    .text-start-btn, .text-stop-btn { padding:0.4rem 0.9rem; border-radius:6px; border:none; cursor:pointer; font-size:0.82rem; font-weight:600; }
+    .text-start-btn { background:#7c4f2a; color:#fff; }
+    .text-stop-btn { background:#e5e0d8; color:#555; }
   </style>
 </head>
 <body>
@@ -449,8 +475,13 @@
 
     <div class="app-tab-bar">
       <button class="app-tab-btn active" data-tab="talk">Talk to Pastor Dave</button>
+      <button class="app-tab-btn" data-tab="text">💬 Text</button>
       <button class="app-tab-btn" data-tab="call">📞 Call</button>
       <button class="app-tab-btn" data-tab="discipleship">Discipleship Group</button>
+    </div>
+
+    <div id="panel-text" class="app-panel">
+      <div id="text-container" style="max-width:620px; margin:0 auto;"></div>
     </div>
 
     <div id="panel-call" class="app-panel">
@@ -514,5 +545,135 @@
 
   <script src="/src/auth.js"></script>
   <script src="/src/app.js"></script>
+  <script>
+  // Pastor Dave Pro — Text Conversation UI
+  const PRO_TEXT_AGENT_ID = 'agent_4701kn7h53t1fdrvxp6yp8adc1qg';
+
+  class ProTextUI {
+    constructor(containerId) {
+      this.container = document.getElementById(containerId);
+      this.agentId = PRO_TEXT_AGENT_ID;
+      this.conversation = null;
+      this.isActive = false;
+      this.render();
+      this.container.querySelector('.text-start-btn').addEventListener('click', () => this.start());
+      this.container.querySelector('.text-stop-btn').addEventListener('click', () => this.stop());
+      var sendBtn = this.container.querySelector('.send-btn');
+      var input = this.container.querySelector('.message-input');
+      sendBtn.addEventListener('click', () => this.sendMessage());
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
+      });
+    }
+
+    render() {
+      this.container.innerHTML = `
+        <div class="text-interface">
+          <div class="text-header">
+            <div class="text-status">
+              <span class="status-indicator"></span>
+              <span class="status-text">Ready to connect</span>
+            </div>
+            <div class="text-controls-header">
+              <button class="text-start-btn">Connect</button>
+              <button class="text-stop-btn" style="display:none">Disconnect</button>
+            </div>
+          </div>
+          <div class="chat-container">
+            <div class="chat-messages">
+              <div class="welcome-message">
+                <p>Click <strong>Connect</strong> to start a text conversation with Pastor Dave.</p>
+              </div>
+            </div>
+            <div class="chat-input-container">
+              <textarea class="message-input" placeholder="Type your message…" rows="2"></textarea>
+              <button class="send-btn">Send 📤</button>
+            </div>
+          </div>
+          <div class="text-info">Scripture references are sourced directly from the Bible — never generated from memory.</div>
+        </div>`;
+    }
+
+    setStatus(state, text) {
+      var ind = this.container.querySelector('.status-indicator');
+      var txt = this.container.querySelector('.status-text');
+      ind.className = 'status-indicator status-' + state;
+      txt.textContent = text;
+    }
+
+    addMessage(role, text) {
+      var msgs = this.container.querySelector('.chat-messages');
+      var div = document.createElement('div');
+      div.className = 'chat-msg ' + role;
+      var label = document.createElement('strong');
+      label.textContent = role === 'user' ? 'You' : 'Pastor Dave';
+      div.appendChild(label);
+      div.appendChild(document.createTextNode(text));
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    async start() {
+      try {
+        this.setStatus('connecting', 'Connecting…');
+        this.container.querySelector('.text-start-btn').style.display = 'none';
+        this.container.querySelector('.text-stop-btn').style.display = 'inline-block';
+        this.container.querySelector('.chat-messages').innerHTML = '';
+        this.container.querySelector('.chat-input-container').style.display = 'flex';
+
+        // Get signed URL for auth
+        var token = await window.PastorDaveAuth.getSessionToken();
+        var res = await fetch('/api/el-token', { headers: { Authorization: 'Bearer ' + token } });
+        var data = await res.json();
+
+        this.conversation = await window.client.Conversation.startSession({
+          agentId: this.agentId,
+          signedUrl: data.signed_url,
+          dynamicVariables: { user_id: data.user_id || 'anonymous' },
+          onConnect: () => { this.setStatus('connected', 'Connected'); this.isActive = true; },
+          onDisconnect: () => { this.setStatus('disconnected', 'Disconnected'); this.isActive = false; this.stop(); },
+          onMessage: (msg) => {
+            if (msg.role === 'agent' && msg.message) this.addMessage('agent', msg.message);
+            if (msg.type === 'agent_response') { var t = msg.text || msg.response; if (t) this.addMessage('agent', t); }
+          },
+          onError: (err) => { console.error(err); this.setStatus('error', 'Error — please retry'); this.stop(); }
+        });
+      } catch(e) {
+        console.error(e);
+        this.setStatus('error', 'Failed to connect');
+        this.stop();
+      }
+    }
+
+    async stop() {
+      if (this.conversation) { try { await this.conversation.endSession(); } catch(e) {} this.conversation = null; }
+      this.isActive = false;
+      this.container.querySelector('.text-start-btn').style.display = 'inline-block';
+      this.container.querySelector('.text-stop-btn').style.display = 'none';
+      this.container.querySelector('.chat-input-container').style.display = 'none';
+    }
+
+    sendMessage() {
+      var input = this.container.querySelector('.message-input');
+      var text = input.value.trim();
+      if (!text || !this.isActive || !this.conversation) return;
+      this.addMessage('user', text);
+      this.conversation.sendUserInput(text);
+      input.value = '';
+    }
+  }
+
+  // Initialize text UI when the Text tab becomes active
+  var proTextUI = null;
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.app-tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (btn.dataset.tab === 'text' && !proTextUI) {
+          proTextUI = new ProTextUI('text-container');
+        }
+      });
+    });
+  });
+  </script>
 </body>
 </html>

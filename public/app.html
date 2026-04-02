@@ -634,8 +634,9 @@
           onConnect: () => { this.setStatus('connected', 'Connected'); this.isActive = true; },
           onDisconnect: () => { this.setStatus('disconnected', 'Disconnected'); this.isActive = false; this.stop(); },
           onMessage: (msg) => {
+            console.log('[TextChat] onMessage:', JSON.stringify(msg));
             if (msg.role === 'agent' && msg.message) this.addMessage('agent', msg.message);
-            if (msg.type === 'agent_response') { var t = msg.text || msg.response; if (t) this.addMessage('agent', t); }
+            if (msg.type === 'agent_response') { var t = msg.text || msg.response || msg.message; if (t) this.addMessage('agent', t); }
           },
           onError: (err) => { console.error(err); this.setStatus('error', 'Error — please retry'); this.stop(); }
         });
@@ -659,8 +660,12 @@
       var text = input.value.trim();
       if (!text || !this.isActive || !this.conversation) return;
       this.addMessage('user', text);
-      this.conversation.sendUserMessage(text);
       input.value = '';
+      try {
+        this.conversation.sendUserMessage(text);
+      } catch(e) {
+        console.error('sendUserMessage error:', e);
+      }
     }
   }
 

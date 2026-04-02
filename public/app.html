@@ -623,21 +623,26 @@
 
         // Get signed URL for auth (pass agent_id so it signs for this specific agent)
         var token = await window.PastorDaveAuth.getSessionToken();
-        var res = await fetch('/api/el-token?agent_id=' + this.agentId, { headers: { Authorization: 'Bearer ' + token } });
+        var fetchUrl = '/api/el-token?agent_id=' + encodeURIComponent(this.agentId);
+        var res = await fetch(fetchUrl, { headers: { Authorization: 'Bearer ' + token } });
         var data = await res.json();
+        console.log('[TextChat] Token response:', JSON.stringify(data).substring(0, 120));
 
+        console.log('[TextChat] Signed URL:', data.signed_url);
         this.conversation = await window.client.Conversation.startSession({
           signedUrl: data.signed_url,
           dynamicVariables: { user_id: data.user_id || 'anonymous' },
           overrides: { conversation: { textOnly: true } },
-          onConnect: () => { this.setStatus('connected', 'Connected'); this.isActive = true; },
-          onDisconnect: () => { this.setStatus('disconnected', 'Disconnected'); this.isActive = false; this.stop(); },
+          onConnect: () => { console.log('[TextChat] onConnect fired'); this.setStatus('connected', 'Connected'); this.isActive = true; },
+          onDisconnect: () => { console.log('[TextChat] onDisconnect fired'); this.setStatus('disconnected', 'Disconnected'); this.isActive = false; this.stop(); },
           onMessage: (msg) => {
             console.log('[TextChat] onMessage:', JSON.stringify(msg));
             if (msg.role === 'agent' && msg.message) this.addMessage('agent', msg.message);
             if (msg.type === 'agent_response') { var t = msg.text || msg.response || msg.message; if (t) this.addMessage('agent', t); }
           },
-          onError: (err) => { console.error(err); this.setStatus('error', 'Error — please retry'); this.stop(); }
+          onError: (err) => { console.error('[TextChat] onError:', err); this.setStatus('error', 'Error — please retry'); this.stop(); },
+          onStatusChange: (status) => { console.log('[TextChat] onStatusChange:', status); },
+          onModeChange: (mode) => { console.log('[TextChat] onModeChange:', mode); },
         });
       } catch(e) {
         console.error(e);
@@ -657,13 +662,15 @@
     sendMessage() {
       var input = this.container.querySelector('.message-input');
       var text = input.value.trim();
-      if (!text || !this.isActive || !this.conversation) return;
+      if (!text || !this.isActive || !this.conversation) { console.log('[TextChat] sendMessage blocked:', !text ? 'empty' : !this.isActive ? 'inactive' : 'no conversation'); return; }
       this.addMessage('user', text);
       input.value = '';
+      console.log('[TextChat] sending:', text);
       try {
         this.conversation.sendUserMessage(text);
+        console.log('[TextChat] sendUserMessage called OK');
       } catch(e) {
-        console.error('sendUserMessage error:', e);
+        console.error('[TextChat] sendUserMessage error:', e);
       }
     }
   }

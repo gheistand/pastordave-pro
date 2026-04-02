@@ -422,6 +422,12 @@
     .print-btn:hover {
       opacity: 0.7;
     }
+    @keyframes ring {
+      0%, 100% { transform: rotate(0deg); }
+      10%, 30% { transform: rotate(-15deg); }
+      20%, 40% { transform: rotate(15deg); }
+      50% { transform: rotate(0deg); }
+    }
   </style>
 </head>
 <body>
@@ -443,7 +449,26 @@
 
     <div class="app-tab-bar">
       <button class="app-tab-btn active" data-tab="talk">Talk to Pastor Dave</button>
+      <button class="app-tab-btn" data-tab="call">📞 Call</button>
       <button class="app-tab-btn" data-tab="discipleship">Discipleship Group</button>
+    </div>
+
+    <div id="panel-call" class="app-panel">
+      <div style="background:#fff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.08); border:2px solid #e5e0d8; padding:3rem 2rem; text-align:center; max-width:480px; margin:2rem auto;">
+        <div style="font-size:4.5rem; margin-bottom:1.5rem; animation:ring 2.5s ease-in-out infinite;">📞</div>
+        <h2 style="color:#7c4f2a; font-size:1.6rem; margin-bottom:0.75rem;">Call Pastor Dave</h2>
+        <p style="color:#555; font-size:1rem; margin-bottom:2rem; line-height:1.6;">Speak with Pastor Dave from any phone — no app needed, no screen required. Just call and talk.</p>
+        <div style="margin:2rem 0;">
+          <a href="tel:+18339511905" style="display:inline-block; font-size:2rem; font-weight:800; color:#fff; background:linear-gradient(135deg,#7c4f2a,#a0724a); padding:1.25rem 2.5rem; border-radius:12px; text-decoration:none; box-shadow:0 4px 15px rgba(124,79,42,0.35); transition:all 0.2s; font-family:inherit; letter-spacing:0.02em;">
+            +1 (833) 951-1905
+          </a>
+        </div>
+        <p style="color:#444; font-weight:600; font-size:0.95rem; margin-bottom:0.4rem;">Available 24/7 for faith conversations and biblical guidance.</p>
+        <p style="color:#999; font-size:0.82rem; font-style:italic; margin-bottom:1.5rem;">Standard calling rates may apply depending on your carrier.</p>
+        <div style="background:#f8f5f0; border-radius:8px; padding:1rem 1.25rem; font-size:0.85rem; color:#7c4f2a; text-align:left; border-left:3px solid #7c4f2a;">
+          <strong>Subscriber line</strong> — this number is provided to Pastor Dave Pro subscribers. Please keep it private.
+        </div>
+      </div>
     </div>
 
     <div id="panel-talk" class="app-panel active">

@@ -659,7 +659,7 @@
       var text = input.value.trim();
       if (!text || !this.isActive || !this.conversation) return;
       this.addMessage('user', text);
-      this.conversation.sendUserInput(text);
+      this.conversation.sendUserMessage(text);
       input.value = '';
     }
   }

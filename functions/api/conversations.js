@@ -25,7 +25,8 @@ export async function onRequestGet(context) {
   }
 
   // Call ElevenLabs API to get conversations
-  const agentId = env.ELEVENLABS_AGENT_ID;
+  const urlParams = new URL(request.url).searchParams;
+  const agentId = urlParams.get('agent_id') || env.ELEVENLABS_AGENT_ID;
   const apiKey = env.ELEVENLABS_API_KEY;
 
   if (!agentId || !apiKey) {

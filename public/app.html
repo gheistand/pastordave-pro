@@ -451,7 +451,22 @@
     .send-btn { background:#7c4f2a; color:#fff; border:none; border-radius:8px; padding:0.6rem 1rem; cursor:pointer; font-size:0.88rem; font-weight:600; white-space:nowrap; }
     .send-btn:hover { background:#6a4324; }
     .text-info { padding:0.75rem 1.25rem; font-size:0.8rem; color:#999; border-top:1px solid #f0ebe4; text-align:center; }
+    .text-print-btn { background:none; border:1px solid #ccc; border-radius:6px; padding:0.35rem 0.7rem; cursor:pointer; font-size:0.82rem; color:#555; }
+    .text-print-btn:hover { background:#f5f0e8; }
     .text-start-btn, .text-stop-btn { padding:0.4rem 0.9rem; border-radius:6px; border:none; cursor:pointer; font-size:0.82rem; font-weight:600; }
+    .text-past-section { margin-top:1.25rem; }
+    .text-past-header { display:flex; align-items:center; justify-content:space-between; padding:0.6rem 1rem; background:#f8f5f0; border:1px solid #e5e0d8; border-radius:8px; cursor:pointer; font-size:0.88rem; font-weight:600; color:#7c4f2a; }
+    .text-past-header:hover { background:#f0ebe4; }
+    .text-past-toggle { transition:transform 0.2s; display:inline-block; }
+    .text-past-toggle.open { transform:rotate(180deg); }
+    .text-past-list { display:none; padding:0.5rem 0; }
+    .text-past-list.open { display:block; }
+    .text-past-item { padding:0.6rem 1rem; border-bottom:1px solid #f0ebe4; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+    .text-past-item:hover { background:#faf8f5; }
+    .text-past-item:last-child { border-bottom:none; }
+    .text-past-title { font-size:0.85rem; font-weight:600; color:#333; }
+    .text-past-meta { font-size:0.75rem; color:#999; }
+    .text-past-load-btn { background:#7c4f2a; color:#fff; border:none; border-radius:4px; padding:0.25rem 0.6rem; font-size:0.75rem; cursor:pointer; }
     .text-start-btn { background:#7c4f2a; color:#fff; }
     .text-stop-btn { background:#e5e0d8; color:#555; }
   </style>
@@ -558,12 +573,24 @@
       this.render();
       this.container.querySelector('.text-start-btn').addEventListener('click', () => this.start());
       this.container.querySelector('.text-stop-btn').addEventListener('click', () => this.stop());
+      this.container.querySelector('.text-print-btn').addEventListener('click', () => this.printChat());
       var sendBtn = this.container.querySelector('.send-btn');
       var input = this.container.querySelector('.message-input');
       sendBtn.addEventListener('click', () => this.sendMessage());
       input.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
       });
+      // Past chats toggle
+      var pastHeader = this.container.querySelector('#text-past-header');
+      var pastList = this.container.querySelector('#text-past-list');
+      var pastToggle = this.container.querySelector('#text-past-toggle');
+      if (pastHeader && pastList) {
+        pastHeader.addEventListener('click', () => {
+          pastList.classList.toggle('open');
+          pastToggle.classList.toggle('open');
+          if (pastList.classList.contains('open')) this.loadPastChats();
+        });
+      }
     }
 
     render() {
@@ -575,6 +602,7 @@
               <span class="status-text">Ready to connect</span>
             </div>
             <div class="text-controls-header">
+              <button class="text-print-btn" title="Print this conversation">🖨 Print</button>
               <button class="text-start-btn">Connect</button>
               <button class="text-stop-btn" style="display:none">Disconnect</button>
             </div>
@@ -591,6 +619,15 @@
             </div>
           </div>
           <div class="text-info">Scripture references are sourced directly from the Bible — never generated from memory.</div>
+          <div class="text-past-section">
+            <div class="text-past-header" id="text-past-header">
+              <span>📋 Past Text Chats</span>
+              <span class="text-past-toggle" id="text-past-toggle">▼</span>
+            </div>
+            <div class="text-past-list" id="text-past-list">
+              <div style="text-align:center; color:#999; padding:0.75rem;">Connect first, then check back.</div>
+            </div>
+          </div>
         </div>`;
     }
 
@@ -665,6 +702,78 @@
         console.error('[TextChat] sendUserMessage error:', e);
       }
     }
+
+    printChat() {
+      var msgs = this.container.querySelectorAll('.chat-msg');
+      if (msgs.length === 0) { alert('No messages to print.'); return; }
+      var lines = [];
+      lines.push('Pastor Dave Pro — Text Conversation');
+      lines.push('Printed: ' + new Date().toLocaleString());
+      lines.push('');
+      msgs.forEach(function(m) {
+        var label = m.querySelector('strong');
+        var role = label ? label.textContent.trim() : '';
+        var text = m.textContent.replace(role, '').trim();
+        lines.push(role + ': ' + text);
+        lines.push('');
+      });
+      var w = window.open('', '_blank');
+      w.document.write('<!DOCTYPE html><html><head><title>Pastor Dave — Text Chat</title><style>body{font-family:-apple-system,system-ui,sans-serif;max-width:700px;margin:2rem auto;padding:0 1rem;line-height:1.7;font-size:0.95rem;color:#333}h1{font-size:1.2rem;color:#7c4f2a}.meta{color:#999;font-size:0.85rem;margin-bottom:1.5rem}.msg{margin-bottom:1rem}.role{font-weight:700}@media print{body{margin:0}}</style></head><body><h1>🖨 Pastor Dave — Text Chat</h1><div class="meta">' + lines[1] + '</div><pre style="white-space:pre-wrap;word-wrap:break-word;font-family:inherit">' + lines.slice(3).join('\n') + '</pre></body></html>');
+      w.document.close();
+      w.print();
+    }
+
+    async loadPastChats() {
+      var listEl = this.container.querySelector('#text-past-list');
+      try {
+        var token = await window.PastorDaveAuth.getSessionToken();
+        var res = await fetch('/api/conversations?agent_id=' + encodeURIComponent(this.agentId), {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (!res.ok) { listEl.innerHTML = '<div style="text-align:center;color:#c00;padding:0.5rem;">Failed to load</div>'; return; }
+        var data = await res.json();
+        var convs = data.conversations || [];
+        if (convs.length === 0) { listEl.innerHTML = '<div style="text-align:center;color:#999;padding:0.75rem;">No past text chats yet.</div>'; return; }
+        var html = '';
+        convs.forEach((c) => {
+          var convId = c.conversation_id || c.id;
+          var dateStr = c.start_time_unix_secs ? new Date(c.start_time_unix_secs * 1000).toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : 'Unknown';
+          var title = c.call_summary_title || c.summary_title || 'Text Chat';
+          html += '<div class="text-past-item"><div><div class="text-past-title">' + this.esc(title) + '</div><div class="text-past-meta">' + dateStr + '</div></div><button class="text-past-load-btn" data-conv="' + convId + '">View</button></div>';
+        });
+        listEl.innerHTML = html;
+        listEl.querySelectorAll('.text-past-load-btn').forEach((btn) => {
+          btn.addEventListener('click', () => this.loadTranscript(btn.dataset.conv));
+        });
+      } catch(e) {
+        listEl.innerHTML = '<div style="text-align:center;color:#c00;padding:0.5rem;">Error loading</div>';
+      }
+    }
+
+    async loadTranscript(convId) {
+      try {
+        var token = await window.PastorDaveAuth.getSessionToken();
+        var res = await fetch('/api/conversations/' + encodeURIComponent(convId), {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (!res.ok) { alert('Failed to load transcript'); return; }
+        var data = await res.json();
+        var transcript = data.transcript || [];
+        if (transcript.length === 0) { alert('No transcript available.'); return; }
+        var text = transcript.map(function(t) {
+          var role = t.role === 'agent' || t.source === 'ai' ? 'Pastor Dave' : 'You';
+          return role + ': ' + t.message;
+        }).join('\n\n');
+        var w = window.open('', '_blank');
+        w.document.write('<!DOCTYPE html><html><head><title>Pastor Dave — Transcript</title><style>body{font-family:-apple-system,system-ui,sans-serif;max-width:700px;margin:2rem auto;padding:0 1rem;line-height:1.7;font-size:0.95rem;color:#333}h1{font-size:1.2rem;color:#7c4f2a}@media print{body{margin:0}}</style></head><body><h1>Pastor Dave — Text Transcript</h1><pre style="white-space:pre-wrap;word-wrap:break-word;font-family:inherit">' + this.esc(text) + '</pre></body></html>');
+        w.document.close();
+        w.print();
+      } catch(e) {
+        alert('Failed to load transcript');
+      }
+    }
+
+    esc(str) { var d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
   }
 
   // Initialize text UI when the Text tab becomes active

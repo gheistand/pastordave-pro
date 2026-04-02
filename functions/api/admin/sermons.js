@@ -60,11 +60,40 @@ export async function onRequestPost({ request, env }) {
   }
 }
 
+export async function onRequestDelete({ request, env }) {
+  const admin = await requireAdmin(request, env);
+  if (!admin) return json({ error: 'Unauthorized' }, 401);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'Invalid JSON' }, 400);
+  }
+
+  const { id } = body;
+  if (!id) return json({ error: 'id is required' }, 400);
+
+  try {
+    const result = await env.DB.prepare(
+      'DELETE FROM sermons WHERE id = ? AND church_id = ?'
+    ).bind(id, admin.churchId).run();
+
+    if (result.meta.rows === 0) {
+      return json({ error: 'Sermon not found' }, 404);
+    }
+
+    return json({ success: true });
+  } catch (err) {
+    return json({ error: 'DB error', detail: err.message }, 500);
+  }
+}
+
 export async function onRequestOptions() {
   return new Response(null, {
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
   });

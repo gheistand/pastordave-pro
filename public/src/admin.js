@@ -259,6 +259,7 @@
                 <div class="form-actions" style="margin-top: 1rem;">
                   <button type="submit" class="submit-btn edit-save-btn" data-id="${escHtml(s.id)}">Save</button>
                   <button type="button" class="cancel-btn edit-cancel-btn" data-id="${escHtml(s.id)}">Cancel</button>
+                  <button type="button" class="cancel-btn delete-sermon-btn" data-id="${escHtml(s.id)}" data-title="${escHtml(s.title)}" style="color:#c0392b; margin-left:auto;">🗑 Delete</button>
                   <span class="form-status edit-status" data-id="${escHtml(s.id)}"></span>
                 </div>
               </form>
@@ -287,6 +288,11 @@
         if (cancelBtn) {
           cancelBtn.addEventListener('click', () => toggleEditForm(cancelBtn.dataset.id));
         }
+      });
+
+      // Wire up delete buttons
+      document.querySelectorAll('.delete-sermon-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteSermon(btn.dataset.id, btn.dataset.title));
       });
     } catch (err) {
       showError('sermons-table', `Failed to load sermons: ${err.message}`);
@@ -398,6 +404,22 @@
     form.style.display = hidden ? 'block' : 'none';
     btn.textContent = hidden ? 'Hide Form' : '+ Add Sermon';
   });
+
+  async function deleteSermon(sermonId, title) {
+    if (!confirm('Delete sermon "' + title + '"?\n\nThis cannot be undone.')) return;
+    const statusEl = document.querySelector('.edit-status[data-id="' + sermonId + '"]');
+    try {
+      const res = await apiFetch('/api/admin/sermons', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: sermonId })
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Delete failed'); }
+      loadSermons(); // Refresh the list
+    } catch (err) {
+      alert('Failed to delete: ' + err.message);
+    }
+  }
 
   // ── Stats ─────────────────────────────────────────────────────────────────
   async function loadStats() {

@@ -760,14 +760,13 @@
         var data = await res.json();
         var transcript = data.transcript || [];
         if (transcript.length === 0) { alert('No transcript available.'); return; }
-        var text = transcript.map(function(t) {
+        var lines = transcript.map(function(t) {
           var role = t.role === 'agent' || t.source === 'ai' ? 'Pastor Dave' : 'You';
-          return role + ': ' + t.message;
-        }).join('\n\n');
+          return '<div style="margin-bottom:1rem;"><strong style="color:#7c4f2a;">' + role + ':</strong> ' + (t.message || '').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+        }).join('');
         var w = window.open('', '_blank');
-        w.document.write('<!DOCTYPE html><html><head><title>Pastor Dave — Transcript</title><style>body{font-family:-apple-system,system-ui,sans-serif;max-width:700px;margin:2rem auto;padding:0 1rem;line-height:1.7;font-size:0.95rem;color:#333}h1{font-size:1.2rem;color:#7c4f2a}@media print{body{margin:0}}</style></head><body><h1>Pastor Dave — Text Transcript</h1><pre style="white-space:pre-wrap;word-wrap:break-word;font-family:inherit">' + this.esc(text) + '</pre></body></html>');
+        w.document.write('<!DOCTYPE html><html><head><title>Pastor Dave — Transcript</title><style>body{font-family:-apple-system,system-ui,sans-serif;max-width:700px;margin:2rem auto;padding:0 1rem;line-height:1.7;font-size:0.95rem;color:#333}h1{font-size:1.2rem;color:#7c4f2a}button{background:#7c4f2a;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;margin-bottom:1.5rem}button:hover{background:#6a4324}@media print{button{display:none}body{margin:0}}</style></head><body><h1>🖨 Pastor Dave — Text Transcript</h1><button onclick="window.print()">🖨 Print</button>' + lines + '</body></html>');
         w.document.close();
-        w.print();
       } catch(e) {
         alert('Failed to load transcript');
       }

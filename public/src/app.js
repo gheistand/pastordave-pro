@@ -567,16 +567,19 @@ async function viewConversationTranscript(convId) {
       return;
     }
 
-    // Format transcript array [{role, message}] into readable text
-    var transcriptText = transcript
+    // Format transcript into styled reader
+    var lines = transcript
       .filter(function(t) { return t.message && t.message.trim(); })
       .map(function(t) {
         var speaker = t.role === 'agent' ? 'Pastor Dave' : 'You';
-        return speaker + ': ' + t.message.trim();
+        var msg = t.message.trim().replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        return '<div style="margin-bottom:1rem;"><strong style="color:#7c4f2a;">' + speaker + ':</strong> ' + msg + '</div>';
       })
-      .join('\n\n');
+      .join('');
 
-    alert('Transcript:\n\n' + transcriptText);
+    var w = window.open('', '_blank');
+    w.document.write('<!DOCTYPE html><html><head><title>Pastor Dave — Transcript</title><style>body{font-family:-apple-system,system-ui,sans-serif;max-width:700px;margin:2rem auto;padding:0 1rem;line-height:1.7;font-size:0.95rem;color:#333}h1{font-size:1.2rem;color:#7c4f2a}button{background:#7c4f2a;color:#fff;border:none;border-radius:6px;padding:0.5rem 1.25rem;font-size:0.9rem;cursor:pointer;margin-bottom:1.5rem}button:hover{background:#6a4324}@media print{button{display:none}body{margin:0}}</style></head><body><h1>🖨 Pastor Dave — Voice Transcript</h1><button onclick="window.print()">🖨 Print</button>' + lines + '</body></html>');
+    w.document.close();
   } catch (err) {
     console.error('Failed to load transcript:', err);
     alert('Failed to load transcript');

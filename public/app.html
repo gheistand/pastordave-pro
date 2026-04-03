@@ -469,6 +469,42 @@
     .text-past-load-btn { background:#7c4f2a; color:#fff; border:none; border-radius:4px; padding:0.25rem 0.6rem; font-size:0.75rem; cursor:pointer; }
     .text-start-btn { background:#7c4f2a; color:#fff; }
     .text-stop-btn { background:#e5e0d8; color:#555; }
+
+    /* Devotional Home Screen */
+    .dh-card {
+      background: #fff;
+      border: 1px solid #e5e0d8;
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .dh-card-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #a07850;
+      margin-bottom: 0.5rem;
+    }
+    .dh-card-body {
+      font-size: 0.9rem;
+      color: #444;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+    .dh-chip {
+      background: none;
+      border: 1px solid #d4b896;
+      border-radius: 20px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.8rem;
+      color: #7c4f2a;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .dh-chip:hover { background: #f8f5f0; }
   </style>
 </head>
 <body>
@@ -487,6 +523,29 @@
   <main>
     <h1>Talk with Pastor Dave<a href="#" id="about-pastor-dave-link" style="font-size:0.8rem;color:#a07850;text-decoration:none;margin-left:0.75rem;vertical-align:middle;" onclick="document.getElementById('about-pastor-dave-modal').style.display='flex';return false;">ℹ️ About</a></h1>
     <p class="tagline">Ask theological questions, practice evangelism, or seek spiritual guidance.</p>
+
+    <div id="devotional-home" style="max-width:680px;margin:0 auto 1.5rem;display:none;">
+      <!-- Today's Reading Card -->
+      <div id="dh-reading-card" class="dh-card" style="display:none;">
+        <div class="dh-card-label">📖 Today's Bible Reading</div>
+        <div id="dh-reading-content" class="dh-card-body"></div>
+        <button class="dh-chip" id="dh-reading-btn">Ask Pastor Dave about today's reading →</button>
+      </div>
+
+      <!-- This Week's Sermon Card -->
+      <div id="dh-sermon-card" class="dh-card" style="display:none;">
+        <div class="dh-card-label">🎙 This Week's Sermon</div>
+        <div id="dh-sermon-content" class="dh-card-body"></div>
+        <button class="dh-chip" id="dh-sermon-btn">Discuss this sermon with Pastor Dave →</button>
+      </div>
+
+      <!-- Continue Last Conversation -->
+      <div id="dh-continue-card" class="dh-card" style="display:none;">
+        <div class="dh-card-label">💬 Continue Where You Left Off</div>
+        <div id="dh-continue-content" class="dh-card-body"></div>
+        <button class="dh-chip" id="dh-continue-btn">Continue this conversation →</button>
+      </div>
+    </div>
 
     <div class="app-tab-bar">
       <button class="app-tab-btn active" data-tab="talk">Talk to Pastor Dave</button>

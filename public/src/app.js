@@ -34,6 +34,12 @@ var notesAutoSaveTimer = null;
   initTabSwitching();
   loadPastConversations();
 
+  // Load devotional home screen (non-auth cards load immediately; auth card uses token)
+  loadDevotionalHome(null, null);
+  window.PastorDaveAuth.getSessionToken().then(function(token) {
+    if (token) loadDevotionalHome(token, currentUser ? currentUser.id : null);
+  }).catch(function() {});
+
   var startBtn = document.getElementById('start-btn');
   if (startBtn) {
     startBtn.addEventListener('click', function() {
@@ -617,6 +623,100 @@ async function viewConversationTranscript(convId) {
     console.error('Failed to load transcript:', err);
     alert('Failed to load transcript');
   }
+}
+
+async function loadDevotionalHome(authToken, userId) {
+  var homeEl = document.getElementById('devotional-home');
+  if (!homeEl) return;
+
+  var anyLoaded = false;
+
+  // 1. Bible reading (no auth required)
+  try {
+    var r = await fetch('/api/bible-plan');
+    if (r.ok) {
+      var d = await r.json();
+      var readings = d.readings || {};
+      var parts = [];
+      if (readings.old_testament) parts.push('<strong>OT:</strong> ' + readings.old_testament);
+      if (readings.new_testament) parts.push('<strong>NT:</strong> ' + readings.new_testament);
+      if (readings.psalm) parts.push('<strong>Psalm:</strong> ' + readings.psalm);
+      if (readings.proverbs) parts.push('<strong>Proverbs:</strong> ' + readings.proverbs);
+      if (parts.length > 0) {
+        document.getElementById('dh-reading-content').innerHTML = parts.join('<br>');
+        document.getElementById('dh-reading-card').style.display = 'block';
+        anyLoaded = true;
+        document.getElementById('dh-reading-btn').addEventListener('click', function() {
+          var prompt = "Help me understand today's Bible reading: " + (readings.old_testament || '') +
+            (readings.new_testament ? ' and ' + readings.new_testament : '');
+          window._pendingChipPrompt = prompt;
+          document.querySelector('[data-tab="talk"]').click();
+          setTimeout(function() {
+            var startBtn = document.getElementById('start-btn');
+            if (startBtn && !startBtn.disabled) startBtn.click();
+          }, 300);
+        });
+      }
+    }
+  } catch(e) { /* silent fail */ }
+
+  // 2. Latest sermon (no auth required)
+  try {
+    var sr = await fetch('/api/tools/sermon/new-horizon-champaign');
+    if (sr.ok) {
+      var sd = await sr.json();
+      if (sd.title) {
+        var sermonDate = sd.date ? new Date(sd.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '';
+        document.getElementById('dh-sermon-content').innerHTML =
+          '<strong>' + escapeHtml(sd.title) + '</strong>' +
+          (sermonDate ? ' <span style="color:#aaa;font-size:0.82rem;">— ' + sermonDate + '</span>' : '') +
+          (sd.pastor ? '<br><span style="font-size:0.82rem;color:#888;">' + escapeHtml(sd.pastor) + '</span>' : '') +
+          (sd.scripture ? '<br><span style="font-size:0.82rem;color:#7c4f2a;font-style:italic;">' + escapeHtml(sd.scripture) + '</span>' : '');
+        document.getElementById('dh-sermon-card').style.display = 'block';
+        anyLoaded = true;
+        document.getElementById('dh-sermon-btn').addEventListener('click', function() {
+          window._pendingChipPrompt = 'Tell me about the sermon "' + sd.title + '" — what were the key points and what does it mean for my life?';
+          document.querySelector('[data-tab="talk"]').click();
+          setTimeout(function() {
+            var startBtn = document.getElementById('start-btn');
+            if (startBtn && !startBtn.disabled) startBtn.click();
+          }, 300);
+        });
+      }
+    }
+  } catch(e) { /* silent fail */ }
+
+  // 3. Most recent past conversation (auth required)
+  if (authToken) {
+    try {
+      var cr = await fetch('/api/conversations?limit=1', { headers: { Authorization: 'Bearer ' + authToken } });
+      if (cr.ok) {
+        var cd = await cr.json();
+        var convs = cd.conversations || [];
+        if (convs.length > 0) {
+          var conv = convs[0];
+          var convTitle = conv.call_summary_title || conv.summary_title || 'Your last conversation';
+          var convDate = conv.start_time_unix_secs ?
+            new Date(conv.start_time_unix_secs * 1000).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '';
+          document.getElementById('dh-continue-content').innerHTML =
+            '<strong>' + escapeHtml(convTitle) + '</strong>' +
+            (convDate ? ' <span style="color:#aaa;font-size:0.82rem;">— ' + convDate + '</span>' : '');
+          document.getElementById('dh-continue-card').style.display = 'block';
+          anyLoaded = true;
+          document.getElementById('dh-continue-btn').addEventListener('click', function() {
+            window._pendingChipPrompt = 'I want to continue our last conversation about: ' + convTitle;
+            document.querySelector('[data-tab="talk"]').click();
+            setTimeout(function() {
+              var startBtn = document.getElementById('start-btn');
+              if (startBtn && !startBtn.disabled) startBtn.click();
+            }, 300);
+          });
+        }
+      }
+    } catch(e) { /* silent fail */ }
+  }
+
+  if (anyLoaded) homeEl.style.display = 'block';
 }
 
 function escapeHtml(text) {

@@ -355,6 +355,13 @@
     /* ── Tab intro helper ── */
     .tab-intro { font-size: 0.88rem; color: #777; margin-bottom: 1.25rem; line-height: 1.6; padding: 0.75rem 1rem; background: #f8f5f0; border-radius: 6px; border-left: 3px solid #d4b896; }
 
+    /* ── Severity badges ── */
+    .severity-badge { display:inline-block;padding:0.2rem 0.6rem;border-radius:12px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-right:0.5rem; }
+    .severity-urgent { background:#fee2e2;color:#dc2626; }
+    .severity-concerning { background:#fef3c7;color:#d97706; }
+    .severity-prayer { background:#dbeafe;color:#2563eb; }
+    .alert-next-step { font-size:0.78rem;color:#888;margin-top:0.3rem;font-style:italic; }
+
     /* ── Responsive ── */
     @media (max-width: 640px) {
       header { padding: 0.75rem 1rem; }
@@ -414,6 +421,7 @@
         <h2 style="margin-bottom:0">Sermons</h2>
         <button id="toggle-sermon-form">+ Add Sermon</button>
       </div>
+      <p style="font-size:0.82rem;color:#888;margin-bottom:0.75rem;">Pastor Dave references your most recent sermon in every conversation. Keep sermons current to give your congregation the most relevant responses.</p>
 
       <div id="sermon-form-wrapper">
         <h3>Upload New Sermon</h3>

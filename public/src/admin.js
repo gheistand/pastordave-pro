@@ -133,7 +133,14 @@
           <td class="date-cell">${fmtDate(v.created_at)}</td>
         </tr>`).join('');
 
-      document.getElementById('visitors-table').innerHTML = `
+      const container = document.getElementById('visitors-table');
+      const noteEl = document.createElement('p');
+      noteEl.style.cssText = 'font-size:0.82rem;color:#888;margin-bottom:1rem;padding:0.5rem 0.75rem;background:#f8f5f0;border-radius:6px;';
+      noteEl.textContent = 'These are people who expressed interest in connecting with your church. Consider a personal follow-up within a week.';
+      container.innerHTML = '';
+      container.appendChild(noteEl);
+      const tableWrapper = document.createElement('div');
+      tableWrapper.innerHTML = `
         <table>
           <thead><tr>
             <th>Name</th><th>Email</th><th>Phone</th>
@@ -141,6 +148,7 @@
           </tr></thead>
           <tbody>${rows}</tbody>
         </table>`;
+      container.appendChild(tableWrapper);
     } catch (err) {
       showError('visitors-table', `Failed to load visitors: ${err.message}`);
     }
@@ -160,9 +168,22 @@
         return;
       }
 
-      const rows = alerts.map(a => `
+      const rows = alerts.map(a => {
+        const severity = a.type || 'prayer_request';
+        const severityClass = severity === 'urgent' ? 'severity-urgent' : severity === 'concerning' ? 'severity-concerning' : 'severity-prayer';
+        const severityLabel = severity === 'prayer_request' ? 'Prayer Request' : severity.charAt(0).toUpperCase() + severity.slice(1);
+        const nextStep = severity === 'urgent'
+          ? 'Please follow up directly with this person as soon as possible.'
+          : severity === 'concerning'
+          ? 'Consider reaching out to check in when appropriate.'
+          : 'Added to your congregation\'s prayer needs.';
+        return `
         <tr class="${a.resolved ? 'resolved-row' : ''}">
-          <td><span class="badge badge-${escHtml(a.type)}">${escHtml(a.type)}</span></td>
+          <td>
+            <span class="severity-badge ${severityClass}">${severityLabel}</span>
+            <span class="badge badge-${escHtml(a.type)}">${escHtml(a.type)}</span>
+            <div class="alert-next-step">${nextStep}</div>
+          </td>
           <td class="notes-cell">${escHtml(a.message)}</td>
           <td>${escHtml(a.user_id !== 'anonymous' ? a.user_id : '—')}</td>
           <td class="date-cell">${fmtDate(a.created_at)}</td>
@@ -171,7 +192,8 @@
               ? '<span class="resolved-label">Resolved</span>'
               : `<button class="resolve-btn" data-id="${escHtml(a.id)}">Mark Resolved</button>`}
           </td>
-        </tr>`).join('');
+        </tr>`;
+      }).join('');
 
       document.getElementById('alerts-table').innerHTML = `
         <table>

@@ -62,6 +62,19 @@ var DG = (function () {
 
   // ─── Tabs ──────────────────────────────────────────────────────────────────
 
+  var TAB_SUBTITLES = {
+    'guide-generator': 'Create a Bible-based study guide from this week\'s sermon and daily readings.',
+    'agenda-builder': 'Turn your discussion guide into a time-stamped meeting plan.',
+    'saved-guides': 'Reuse or revisit previously generated discussion guides.',
+    'saved-agendas': 'Open, print, or share past meeting agendas.',
+    'group-settings': 'Set defaults for your group\'s rhythm, translation, and guide style.'
+  };
+
+  function updateTabSubtitle(tabId) {
+    var el = document.getElementById('tab-subtitle');
+    if (el) el.textContent = TAB_SUBTITLES[tabId] || '';
+  }
+
   function initTabs() {
     var tabs = document.querySelectorAll('.tab-btn');
     tabs.forEach(function (tab) {
@@ -69,6 +82,9 @@ var DG = (function () {
         switchTab(tab.dataset.tab);
       });
     });
+    // Set subtitle for initial active tab
+    var activeTab = document.querySelector('.tab-btn.active');
+    if (activeTab) updateTabSubtitle(activeTab.dataset.tab);
   }
 
   function switchTab(tabId) {
@@ -78,6 +94,7 @@ var DG = (function () {
     document.querySelectorAll('.tab-panel').forEach(function (p) {
       p.classList.toggle('active', p.id === 'panel-' + tabId);
     });
+    updateTabSubtitle(tabId);
 
     if (tabId === 'saved-guides') loadSavedGuides();
     if (tabId === 'saved-agendas') loadSavedAgendas();
@@ -348,6 +365,41 @@ var DG = (function () {
     }
 
     outputEl.innerHTML = html;
+    makeGuideCollapsible(outputEl);
+  }
+
+  function makeGuideCollapsible(container) {
+    // Find section headings (h3 or elements with class containing 'head', 'heart', 'hands')
+    var sections = container.querySelectorAll('h3, .guide-section-title, [class*="hhh-"]');
+    sections.forEach(function(heading) {
+      var content = [];
+      var next = heading.nextElementSibling;
+      while (next && !next.matches('h3, .guide-section-title, [class*="hhh-"]')) {
+        content.push(next);
+        next = next.nextElementSibling;
+      }
+      if (content.length === 0) return;
+      // Wrap content in collapsible
+      var wrapper = document.createElement('div');
+      wrapper.className = 'guide-collapsible';
+      wrapper.style.cssText = 'border:1px solid #e5e0d8;border-radius:8px;margin-bottom:0.75rem;overflow:hidden;';
+      var toggle = document.createElement('button');
+      toggle.style.cssText = 'width:100%;text-align:left;padding:0.75rem 1rem;background:#f8f5f0;border:none;cursor:pointer;font-weight:600;font-size:0.9rem;color:#7c4f2a;display:flex;justify-content:space-between;align-items:center;font-family:inherit;';
+      toggle.innerHTML = heading.innerHTML + '<span class="toggle-icon" style="font-size:0.75rem;">▼</span>';
+      var body = document.createElement('div');
+      body.style.cssText = 'padding:0.75rem 1rem;';
+      content.forEach(function(el) { body.appendChild(el.cloneNode(true)); });
+      toggle.addEventListener('click', function() {
+        var isOpen = body.style.display !== 'none';
+        body.style.display = isOpen ? 'none' : 'block';
+        toggle.querySelector('.toggle-icon').textContent = isOpen ? '▶' : '▼';
+      });
+      heading.parentNode.insertBefore(wrapper, heading);
+      wrapper.appendChild(toggle);
+      wrapper.appendChild(body);
+      heading.remove();
+      content.forEach(function(el) { el.remove(); });
+    });
   }
 
   async function copyGuide() {

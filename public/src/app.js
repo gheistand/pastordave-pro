@@ -219,6 +219,8 @@ async function startElevenLabsConversation(signedUrl, container, startBtn, userI
           startBtn.style.display = 'inline-block';
           startBtn.disabled = false;
         }
+        var voiceHelper = document.getElementById('voice-helper');
+        if (voiceHelper) voiceHelper.style.display = 'block';
       },
 
       onMessage: function(message) {
@@ -268,6 +270,8 @@ async function startElevenLabsConversation(signedUrl, container, startBtn, userI
       startBtn.style.display = 'inline-block';
       startBtn.disabled = false;
     }
+    var voiceHelper = document.getElementById('voice-helper');
+    if (voiceHelper) voiceHelper.style.display = 'block';
   });
 }
 

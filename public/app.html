@@ -511,14 +511,35 @@
         </div>
         <p style="color:#444; font-weight:600; font-size:0.95rem; margin-bottom:0.4rem;">Available 24/7 for faith conversations and biblical guidance.</p>
         <p style="color:#999; font-size:0.82rem; font-style:italic; margin-bottom:1.5rem;">Standard calling rates may apply depending on your carrier.</p>
-        <div style="background:#f8f5f0; border-radius:8px; padding:1rem 1.25rem; font-size:0.85rem; color:#7c4f2a; text-align:left; border-left:3px solid #7c4f2a;">
-          <strong>Subscriber line</strong> — this number is provided to Pastor Dave Pro subscribers. Please keep it private.
+        <div style="background:#f8f5f0;border-radius:8px;padding:1rem 1.25rem;font-size:0.85rem;color:#555;text-align:left;border-left:3px solid #7c4f2a;margin-top:1rem;">
+          <strong style="color:#7c4f2a;display:block;margin-bottom:0.5rem;">When calling works best</strong>
+          <ul style="margin:0;padding-left:1.25rem;line-height:1.8;">
+            <li>When you prefer talking over typing</li>
+            <li>When you're driving or away from a screen</li>
+            <li>When you want a more natural, unhurried conversation</li>
+          </ul>
+          <p style="margin:0.75rem 0 0;font-size:0.8rem;color:#999;font-style:italic;">This number is reserved for Pastor Dave Pro subscribers — a focused, member-only line for your church.</p>
+          <p style="margin:0.5rem 0 0;font-size:0.8rem;color:#999;">For urgent crises, please contact your pastor, a counselor, or emergency services directly.</p>
         </div>
       </div>
     </div>
 
     <div id="panel-talk" class="app-panel active">
       <button id="start-btn">Start Conversation</button>
+
+      <div id="voice-helper" style="max-width:520px;margin:1.5rem auto 0;text-align:center;">
+        <p style="font-size:0.95rem;color:#555;line-height:1.7;margin-bottom:1.25rem;">
+          Ask Pastor Dave about Scripture, prayer, church life, or this week's sermon.<br>
+          <span style="font-size:0.82rem;color:#999;">For urgent personal situations, please contact your pastor or a trusted leader directly.</span>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin-bottom:1.5rem;">
+          <button class="prompt-chip" onclick="void(0)" style="background:#f8f5f0;border:1px solid #e5e0d8;border-radius:20px;padding:0.4rem 0.9rem;font-size:0.82rem;color:#7c4f2a;cursor:pointer;font-family:inherit;">Help me understand today's Bible reading</button>
+          <button class="prompt-chip" onclick="void(0)" style="background:#f8f5f0;border:1px solid #e5e0d8;border-radius:20px;padding:0.4rem 0.9rem;font-size:0.82rem;color:#7c4f2a;cursor:pointer;font-family:inherit;">Pray with me about something I'm facing</button>
+          <button class="prompt-chip" onclick="void(0)" style="background:#f8f5f0;border:1px solid #e5e0d8;border-radius:20px;padding:0.4rem 0.9rem;font-size:0.82rem;color:#7c4f2a;cursor:pointer;font-family:inherit;">What does this verse mean?</button>
+          <button class="prompt-chip" onclick="void(0)" style="background:#f8f5f0;border:1px solid #e5e0d8;border-radius:20px;padding:0.4rem 0.9rem;font-size:0.82rem;color:#7c4f2a;cursor:pointer;font-family:inherit;">Tell me about Sunday's sermon</button>
+          <button class="prompt-chip" onclick="void(0)" style="background:#f8f5f0;border:1px solid #e5e0d8;border-radius:20px;padding:0.4rem 0.9rem;font-size:0.82rem;color:#7c4f2a;cursor:pointer;font-family:inherit;">Help me share my faith with someone</button>
+        </div>
+      </div>
 
       <div id="limit-message"></div>
       <div id="error-message"></div>
@@ -528,7 +549,7 @@
       <div id="past-conversations">
         <div class="past-conversations-header">
           <span class="past-conversations-toggle">▼</span>
-          <span>📋 Past Conversations</span>
+          <span>📋 Past Conversations — Pick up where you left off</span>
         </div>
         <div id="past-conversations-list" class="past-conversations-list">
           <div style="text-align: center; color: #999; padding: 1rem;">Loading conversations…</div>
@@ -603,14 +624,16 @@
             </div>
             <div class="text-controls-header">
               <button class="text-print-btn" title="Print this conversation">🖨 Print</button>
-              <button class="text-start-btn">Connect</button>
-              <button class="text-stop-btn" style="display:none">Disconnect</button>
+              <button class="text-start-btn">Start Chat</button>
+              <button class="text-stop-btn" style="display:none">End Chat</button>
             </div>
           </div>
           <div class="chat-container">
             <div class="chat-messages">
               <div class="welcome-message">
-                <p>Click <strong>Connect</strong> to start a text conversation with Pastor Dave.</p>
+                <p style="font-size:0.9rem;color:#7c4f2a;font-weight:600;margin-bottom:0.5rem;">💬 Text with Pastor Dave</p>
+                <p>Ask a Bible question, reflect on Sunday's sermon, or explore a topic from your faith journey.</p>
+                <p style="font-size:0.82rem;color:#999;margin-top:0.5rem;">Click <strong>Start Chat</strong> to begin. For urgent personal matters, please contact your pastor directly.</p>
               </div>
             </div>
             <div class="chat-input-container">

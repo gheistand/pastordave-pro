@@ -352,6 +352,9 @@
       display: none;
     }
 
+    /* ── Tab intro helper ── */
+    .tab-intro { font-size: 0.88rem; color: #777; margin-bottom: 1.25rem; line-height: 1.6; padding: 0.75rem 1rem; background: #f8f5f0; border-radius: 6px; border-left: 3px solid #d4b896; }
+
     /* ── Responsive ── */
     @media (max-width: 640px) {
       header { padding: 0.75rem 1rem; }
@@ -377,29 +380,32 @@
   </header>
 
   <nav class="tab-bar">
-    <button class="tab-btn active" data-tab="visitors">Visitors</button>
+    <button class="tab-btn active" data-tab="stats">Insights</button>
     <button class="tab-btn" data-tab="alerts">Pastoral Alerts</button>
+    <button class="tab-btn" data-tab="visitors">Visitors</button>
     <button class="tab-btn" data-tab="sermons">Sermons</button>
-    <button class="tab-btn" data-tab="stats">Stats</button>
     <button class="tab-btn" data-tab="church-settings">Church Settings</button>
   </nav>
 
   <main>
 
-    <!-- Visitors -->
-    <div class="tab-panel active" id="panel-visitors">
+    <!-- Visitors (loaded on demand) -->
+    <div class="tab-panel" id="panel-visitors">
       <h2>Visitors</h2>
+      <p class="tab-intro">People who expressed interest in connecting with your church through a Pastor Dave conversation.</p>
       <div id="visitors-table"><div class="loading">Loading…</div></div>
     </div>
 
     <!-- Pastoral Alerts -->
     <div class="tab-panel" id="panel-alerts">
       <h2>Pastoral Alerts</h2>
+      <p class="tab-intro">Review situations flagged by Pastor Dave that may need your pastoral attention. Follow up directly with the individual when appropriate.</p>
       <div id="alerts-table"><div class="loading">Loading…</div></div>
     </div>
 
     <!-- Sermons -->
     <div class="tab-panel" id="panel-sermons">
+      <p class="tab-intro">Manage the sermons Pastor Dave uses to stay current with your church's teaching calendar.</p>
       <div class="form-toggle-row">
         <h2 style="margin-bottom:0">Sermons</h2>
         <button id="toggle-sermon-form">+ Add Sermon</button>
@@ -456,15 +462,17 @@
       <div id="sermons-table"><div class="loading">Loading…</div></div>
     </div>
 
-    <!-- Stats -->
-    <div class="tab-panel" id="panel-stats">
-      <h2>Stats</h2>
+    <!-- Insights -->
+    <div class="tab-panel active" id="panel-stats">
+      <h2>Insights</h2>
+      <p class="tab-intro">Monitor congregation engagement, active conversations, and platform usage for your church.</p>
       <div id="stats-content"><div class="loading">Loading…</div></div>
     </div>
 
     <!-- Church Settings -->
     <div class="tab-panel" id="panel-church-settings">
       <h2>Church Settings</h2>
+      <p class="tab-intro">Configure how Pastor Dave represents your church, including branding, bulletin integration, and service details.</p>
       <div id="church-settings-content"><div class="loading">Loading…</div></div>
     </div>
 

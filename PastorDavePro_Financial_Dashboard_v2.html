@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pastor Dave Pro — Financial Dashboard v3</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f5f0; color: #1a1a1a; }
+
+  header { background: #7c4f2a; color: #fff; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 1.5rem; font-weight: 700; }
+  header p { font-size: 0.82rem; opacity: 0.8; }
+
+  .dashboard { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+  /* Version badge */
+  .version-note { background: #7c4f2a20; border: 1px solid #7c4f2a40; border-radius: 8px; padding: 0.75rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #7c4f2a; }
+  .version-note strong { font-weight: 700; }
+
+  /* KPI Cards */
+  .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem; }
+  .kpi-card { background: #fff; border-radius: 10px; padding: 1.1rem 1.25rem; border-left: 4px solid #7c4f2a; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .kpi-label { font-size: 0.72rem; color: #6b6b6b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
+  .kpi-value { font-size: 1.5rem; font-weight: 800; color: #7c4f2a; }
+  .kpi-note { font-size: 0.72rem; color: #888; margin-top: 0.2rem; }
+  .kpi-card.green { border-left-color: #22c55e; } .kpi-card.green .kpi-value { color: #16a34a; }
+  .kpi-card.red { border-left-color: #ef4444; } .kpi-card.red .kpi-value { color: #dc2626; }
+  .kpi-card.blue { border-left-color: #3b82f6; } .kpi-card.blue .kpi-value { color: #2563eb; }
+  .kpi-card.amber { border-left-color: #f59e0b; } .kpi-card.amber .kpi-value { color: #d97706; }
+
+  /* Chart grid */
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .chart-card { background: #fff; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .chart-card.full { grid-column: 1 / -1; }
+  .chart-title { font-size: 1rem; font-weight: 700; color: #7c4f2a; margin-bottom: 0.3rem; }
+  .chart-subtitle { font-size: 0.78rem; color: #888; margin-bottom: 1rem; }
+  .chart-container { position: relative; height: 300px; }
+  .chart-card.full .chart-container { height: 340px; }
+  .chart-card.tall .chart-container { height: 380px; }
+
+  /* Tables */
+  .table-section { background: #fff; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .table-title { font-size: 1rem; font-weight: 700; color: #7c4f2a; margin-bottom: 1rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  th { background: #7c4f2a; color: #fff; padding: 0.6rem 0.75rem; text-align: center; font-weight: 600; font-size: 0.8rem; }
+  td { padding: 0.5rem 0.75rem; text-align: center; border-bottom: 1px solid #e5e0d8; }
+  tr:nth-child(even) td { background: #f8f5f0; }
+  .profit { color: #16a34a; font-weight: 700; }
+  .loss { color: #dc2626; font-weight: 700; }
+  .break-even { color: #d97706; font-weight: 700; }
+  .plan-jump { background: #fef9c3 !important; font-weight: 700; color: #b45309; }
+  .total-row td { background: #f0e8e0 !important; font-weight: 700; color: #7c4f2a; }
+
+  /* Matrix */
+  .matrix-wrapper { overflow-x: auto; }
+  .matrix-table th.row-header { background: #f59e0b; }
+  .matrix-table th.col-header { background: #3b82f6; }
+  .profit-cell { background: #dcfce7; color: #15803d; font-weight: 600; }
+  .near-cell { background: #fef9c3; color: #92400e; font-weight: 600; }
+  .loss-cell { background: #fee2e2; color: #b91c1c; }
+  .big-loss-cell { background: #dc2626; color: #fff; font-weight: 600; }
+
+  /* Alert boxes */
+  .alert { border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; font-size: 0.88rem; }
+  .alert-warning { background: #fef9c3; border: 1px solid #f59e0b; color: #92400e; }
+  .alert-info { background: #eff6ff; border: 1px solid #3b82f6; color: #1d4ed8; }
+  .alert-success { background: #f0fdf4; border: 1px solid #22c55e; color: #15803d; }
+  .alert strong { display: block; margin-bottom: 0.25rem; }
+
+  /* Cost breakdown two-column */
+  .cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .cost-table-card { background: #fff; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .cost-table-title { font-size: 0.95rem; font-weight: 700; color: #7c4f2a; margin-bottom: 0.75rem; border-bottom: 2px solid #e5e0d8; padding-bottom: 0.5rem; }
+
+  /* Tax callout */
+  .tax-box { background: #fff7ed; border: 1px solid #fb923c; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+  .tax-box h3 { color: #c2410c; font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .tax-box p { font-size: 0.85rem; color: #7c2d12; line-height: 1.6; }
+
+  footer { text-align: center; padding: 2rem; color: #888; font-size: 0.8rem; }
+
+  @media (max-width: 900px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid { grid-template-columns: 1fr; }
+    .cost-grid { grid-template-columns: 1fr; }
+    .chart-card.full { grid-column: 1; }
+  }
+  @media print {
+    body { background: #fff; }
+    .chart-card, .table-section, .kpi-card, .cost-table-card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Pastor Dave Pro — Financial Dashboard</h1>
+    <p>Full cost model: Direct COGS + Business Overhead · Break-even · Revenue scenarios</p>
+  </div>
+  <div style="text-align:right; font-size:0.82rem; opacity:0.8;">
+    Version 3 — Updated pricing ($149/$249 church tiers)<br>
+    Based on NHC pilot data (Feb 26–Mar 26, 2026)<br>
+    Reep Works LLC
+  </div>
+</header>
+
+<div class="dashboard">
+
+  <div class="version-note">
+    <strong>v2 Update:</strong> This version adds business overhead (insurance, banking, legal reserve, misc) to the direct platform costs.
+    True break-even is ~2 churches + 10 Personal Pro users. Tax impact modeled separately below.
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi-card red">
+      <div class="kpi-label">Platform Cost (COGS only)</div>
+      <div class="kpi-value">$143/mo</div>
+      <div class="kpi-note">ElevenLabs $99 + Fixed $44</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-label">Business Overhead</div>
+      <div class="kpi-value">$110/mo</div>
+      <div class="kpi-note">Insurance + banking + legal + misc</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">True Operating Cost (No Revenue)</div>
+      <div class="kpi-value">$253/mo</div>
+      <div class="kpi-note">COGS $143 + Overhead $110</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">True Break-Even</div>
+      <div class="kpi-value">2 Ch + 10 PP</div>
+      <div class="kpi-note">~$298 revenue covers $266 cost</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">After-Tax Profit (10 churches)</div>
+      <div class="kpi-value">~$250/mo</div>
+      <div class="kpi-note">After 25-30% tax reserve</div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="alert alert-warning">
+    <strong>⚠️ ElevenLabs Pricing Cliffs</strong>
+    At <strong>8 active users</strong>: ElevenLabs jumps Pro→Scale (+$231/mo overnight).
+    At <strong>29 active users</strong>: Scale→Business (+$990/mo). Church Starter tier capped at 7 active members to avoid cliff 1.
+  </div>
+
+  <div class="alert alert-info">
+    <strong>📌 Pre-Launch Actions Required Before Accepting Payment</strong>
+    1. Upgrade API.Bible to Pro + NLT commercial license ($39/mo — currently using free non-commercial plan) &nbsp;|&nbsp;
+    2. Get E&O + Cyber insurance ($60-80/mo — protects against AI content liability) &nbsp;|&nbsp;
+    3. Open Mercury business checking (free) &nbsp;|&nbsp;
+    4. Set up Wave or QuickBooks for tax tracking
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="chart-grid">
+    <div class="chart-card full">
+      <div class="chart-title">18-Month Growth Scenarios — Net Profit After All Costs (COGS + Overhead)</div>
+      <div class="chart-subtitle">Includes $110/mo overhead in every scenario. Dashed red line = break-even.</div>
+      <div class="chart-container">
+        <canvas id="chartScenarios"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">Personal Pro — Revenue vs. True Total Cost</div>
+      <div class="chart-subtitle">Overhead included. Break-even shifts from ~28 to ~38 subscribers.</div>
+      <div class="chart-container"><canvas id="chartPP"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Church Starter — Revenue vs. True Total Cost</div>
+      <div class="chart-subtitle">Overhead included. Break-even shifts from ~5 to ~6 churches.</div>
+      <div class="chart-container"><canvas id="chartCS"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card full tall">
+      <div class="chart-title">Revenue Components vs. Total Cost (COGS + Overhead) — Key Milestones</div>
+      <div class="chart-subtitle">Stacked bars = revenue by source. Red bar = total operating cost. Gap = profit or loss.</div>
+      <div class="chart-container" style="height:380px;"><canvas id="chartMilestones"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">ElevenLabs Cost by Active User Count</div>
+      <div class="chart-subtitle">Blue = Pro ($99) · Amber = Scale ($330) · Red = Business ($1,320)</div>
+      <div class="chart-container"><canvas id="chartEL"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Mixed Model — Net Profit After All Costs (2:1 PP:Church ratio)</div>
+      <div class="chart-subtitle">Green = profitable · Yellow = near break-even · Red = loss</div>
+      <div class="chart-container"><canvas id="chartMixed"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card full">
+      <div class="chart-title">COGS vs. Overhead vs. Profit — Cost Stack at Key Revenue Points</div>
+      <div class="chart-subtitle">Shows how cost structure shifts as revenue grows — overhead becomes a smaller % of total cost</div>
+      <div class="chart-container"><canvas id="chartStack"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Break-Even Matrix -->
+  <div class="table-section">
+    <div class="table-title">Break-Even Matrix — Church Starter × Personal Pro (Monthly Net Profit, All Costs Included)</div>
+    <div class="matrix-wrapper"><table class="matrix-table" id="matrixTable"></table></div>
+    <p style="margin-top:0.75rem; font-size:0.78rem; color:#888;">🟢 > $50 profit &nbsp;|&nbsp; 🟡 ±$50 break-even &nbsp;|&nbsp; 🔴 Loss &nbsp;|&nbsp; Includes $110/mo overhead in all cells</p>
+  </div>
+
+  <!-- Scenario Tables -->
+  <div class="table-section">
+    <div class="table-title">Scenario A — Personal Pro Only ($20/mo) · Full Cost Including Overhead</div>
+    <table id="ppTable"></table>
+  </div>
+
+  <div class="table-section">
+    <div class="table-title">Scenario B — Church Starter Only ($99/mo) · Full Cost Including Overhead</div>
+    <table id="csTable"></table>
+  </div>
+
+  <!-- Cost Breakdown Side by Side -->
+  <div class="cost-grid">
+    <div class="cost-table-card">
+      <div class="cost-table-title">📦 Direct Platform Costs (COGS)</div>
+      <table>
+        <thead><tr><th style="text-align:left">Service</th><th>$/mo</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td style="text-align:left">API.Bible Pro (commercial)</td><td>$29</td><td style="color:#dc2626">⚠️ Upgrade needed</td></tr>
+          <tr><td style="text-align:left">API.Bible NLT License</td><td>$10</td><td style="color:#dc2626">⚠️ Upgrade needed</td></tr>
+          <tr><td style="text-align:left">Cloudflare Workers Paid</td><td>$5</td><td style="color:#16a34a">✓ Active</td></tr>
+          <tr><td style="text-align:left">Clerk Auth (≤50K users)</td><td>$0</td><td style="color:#16a34a">✓ Free tier</td></tr>
+          <tr><td style="text-align:left">Mem0 Memory API</td><td>$0</td><td style="color:#16a34a">✓ Free tier</td></tr>
+          <tr><td style="text-align:left">Resend Email</td><td>$0</td><td style="color:#16a34a">✓ Free tier</td></tr>
+          <tr><td style="text-align:left">AssemblyAI Transcription</td><td>$0</td><td style="color:#16a34a">✓ Free tier</td></tr>
+          <tr><td style="text-align:left">Anthropic Claude (guides)</td><td>~$0</td><td style="color:#16a34a">✓ Pay-per-use</td></tr>
+          <tr><td style="text-align:left">Stripe fees</td><td>~2.9%+$0.30</td><td style="color:#16a34a">✓ Per transaction</td></tr>
+          <tr class="total-row"><td style="text-align:left">FIXED COGS (before EL)</td><td>$44</td><td></td></tr>
+          <tr><td style="text-align:left">ElevenLabs — Pro (≤7 users)</td><td>$99</td><td style="color:#3b82f6">Pro plan</td></tr>
+          <tr><td style="text-align:left">ElevenLabs — Scale (8–28)</td><td>$330</td><td style="color:#f59e0b">Scale plan</td></tr>
+          <tr><td style="text-align:left">ElevenLabs — Business (29+)</td><td>$1,320</td><td style="color:#dc2626">Business plan</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cost-table-card">
+      <div class="cost-table-title">🏢 Business Overhead (Non-COGS)</div>
+      <table>
+        <thead><tr><th style="text-align:left">Item</th><th>$/mo</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td style="text-align:left">E&O + Cyber Insurance</td><td>$65</td><td style="text-align:left; font-size:0.78rem">AI content liability + data breach</td></tr>
+          <tr><td style="text-align:left">General Liability Insurance</td><td>included above</td><td style="text-align:left; font-size:0.78rem">Often bundled with E&O</td></tr>
+          <tr><td style="text-align:left">Business Banking (Mercury)</td><td>$0</td><td style="text-align:left; font-size:0.78rem">Free for LLCs</td></tr>
+          <tr><td style="text-align:left">Accounting Software (Wave)</td><td>$0</td><td style="text-align:left; font-size:0.78rem">Free; upgrade if needed</td></tr>
+          <tr><td style="text-align:left">Legal Reserve</td><td>$15</td><td style="text-align:left; font-size:0.78rem">$180/yr for contracts/reviews</td></tr>
+          <tr><td style="text-align:left">IL LLC Annual Report</td><td>$6</td><td style="text-align:left; font-size:0.78rem">$75/yr ÷ 12</td></tr>
+          <tr><td style="text-align:left">Domains (avg/mo)</td><td>$6</td><td style="text-align:left; font-size:0.78rem">~$72/yr for 4+ domains</td></tr>
+          <tr><td style="text-align:left">Misc (subscriptions, tools)</td><td>$18</td><td style="text-align:left; font-size:0.78rem">Buffer for small expenses</td></tr>
+          <tr class="total-row"><td style="text-align:left">TOTAL OVERHEAD</td><td>$110</td><td></td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:0.75rem; font-size:0.78rem; color:#888; font-style:italic;">
+        Note: Does not include your time. At $100/hr, 5 hrs/mo = $500 opportunity cost not reflected above.
+      </p>
+    </div>
+  </div>
+
+  <!-- Tax Box -->
+  <div class="tax-box">
+    <h3>💰 Tax Planning — Set Aside 25-30% of Every Profitable Dollar</h3>
+    <p>
+      As an Illinois LLC (single-member), all profit flows to your personal return.
+      <strong>Federal self-employment tax: 15.3%</strong> on net income.
+      <strong>Illinois state income tax: 4.95%</strong>.
+      Combined effective rate: <strong>~22-25%</strong> on net profit after deductions.
+      <br><br>
+      Rule: For every $100 of profit, move $25-30 to a separate tax savings account immediately.
+      Quarterly estimated payments due: <strong>Apr 15, Jun 15, Sep 15, Jan 15</strong>.
+      <br><br>
+      <strong>Example:</strong> At 10 churches + 50 PP (~$1,200/mo net before tax) → reserve $300/mo → take home $900/mo.
+    </p>
+  </div>
+
+  <div class="alert alert-success">
+    <strong>✅ Is This Worth Launching?</strong>
+    Yes — with eyes open. True break-even (all costs) = 2 churches + 10 Personal Pro users (~$448/mo revenue at $149 Church Starter pricing).
+    At 5 churches + 25 PP = ~$600/mo after-tax income. At 15+ churches = real side-business income.
+    CTS/Shepherd's Staff partnership skips the entire growth curve — 50 churches overnight = $5K-10K/mo gross, ~$3K-7K/mo after tax.
+    Key action: charge NHC now, get insurance before launch, pursue CTS actively.
+  </div>
+
+</div>
+
+<footer>Pastor Dave Pro Financial Dashboard v2 · Reep Works LLC · Based on NHC pilot data Feb–Mar 2026</footer>
+
+<script>
+// ── MODEL ────────────────────────────────────────────────────────────────────
+const CREDITS_PER_USER = 71000;
+const FIXED_COGS = 44;
+const OVERHEAD = 110;
+const TOTAL_FIXED = FIXED_COGS + OVERHEAD; // $154
+const TAX_RATE = 0.27;
+
+const PRICES = { pp: 20, cs: 149, cg: 249 };
+const ACTIVE_PER = { pp: 1, cs: 5, cg: 15 };
+
+function elCost(activeUsers) {
+  const needed = activeUsers * CREDITS_PER_USER;
+  if (needed <= 500000) return { cost: 99, plan: 'Pro' };
+  if (needed <= 2000000) return { cost: 330, plan: 'Scale' };
+  if (needed <= 11000000) return { cost: 1320, plan: 'Business' };
+  return { cost: 1320 + (needed - 11000000) / 1000 * 0.12, plan: 'Business+' };
+}
+function stripeFee(rev, nTx) { return rev * 0.029 + nTx * 0.30; }
+
+function calc(pp, cs, cg) {
+  const rev = pp * PRICES.pp + cs * PRICES.cs + cg * PRICES.cg;
+  const active = pp * ACTIVE_PER.pp + cs * ACTIVE_PER.cs + cg * ACTIVE_PER.cg;
+  const { cost: el, plan } = elCost(active);
+  const stripe = stripeFee(rev, pp + cs + cg);
+  const totalCost = TOTAL_FIXED + el + stripe;
+  const grossProfit = rev - totalCost;
+  const taxReserve = grossProfit > 0 ? grossProfit * TAX_RATE : 0;
+  return { rev, totalCost, el, plan, stripe, grossProfit, taxReserve, netProfit: grossProfit - taxReserve };
+}
+
+const fmt = n => '$' + Math.round(Math.abs(n)).toLocaleString();
+const fmtSigned = n => (n >= 0 ? '+' : '-') + fmt(n);
+
+// ── CHART 1: Scenarios ──────────────────────────────────────────────────────
+const months = ['Mo 1','Mo 2','Mo 3','Mo 4','Mo 5','Mo 6','Mo 9','Mo 12','Mo 18'];
+const scenarios = {
+  'Conservative': [[0,0,0],[0,0,0],[1,0,0],[3,0,0],[5,1,0],[5,1,0],[8,2,0],[10,3,0],[15,5,0]],
+  'Moderate': [[0,0,0],[2,0,0],[5,1,0],[8,1,0],[10,2,0],[15,2,0],[20,4,0],[30,6,0],[50,10,0]],
+  'Optimistic (CTS)': [[0,1,0],[5,2,0],[10,5,0],[15,8,0],[20,10,0],[30,15,0],[50,25,0],[75,40,0],[100,60,1]],
+  'With Church Growth tier': [[0,0,0],[0,1,0],[3,1,0],[5,2,0],[8,2,1],[10,3,1],[15,5,2],[25,8,3],[40,12,5]],
+};
+const scenarioColors = ['#3b82f6','#f59e0b','#22c55e','#8b5cf6'];
+
+const scenarioDatasets = Object.entries(scenarios).map(([name, subs], i) => ({
+  label: name,
+  data: subs.map(([pp,cs,cg]) => Math.round(calc(pp,cs,cg).grossProfit)),
+  borderColor: scenarioColors[i], backgroundColor: scenarioColors[i]+'20',
+  fill: false, tension: 0.3, borderWidth: 2.5, pointRadius: 4,
+}));
+scenarioDatasets.push({
+  label: 'Break-Even ($0)', data: months.map(() => 0),
+  borderColor: '#ef4444', borderDash: [6,4], borderWidth: 2, pointRadius: 0, fill: false,
+});
+
+new Chart(document.getElementById('chartScenarios'), {
+  type: 'line',
+  data: { labels: months, datasets: scenarioDatasets },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } } },
+    scales: { y: { title: { display: true, text: 'Net Profit / Loss ($)' }, ticks: { callback: v => fmt(v) } } }
+  }
+});
+
+// ── CHART 2: PP break-even ──────────────────────────────────────────────────
+const ppCounts = [1,2,3,5,7,8,10,12,15,20,25,28,29,30,35,40,50,75,100];
+new Chart(document.getElementById('chartPP'), {
+  type: 'line',
+  data: {
+    labels: ppCounts.map(String),
+    datasets: [
+      { label: 'Revenue', data: ppCounts.map(pp => pp*20), borderColor: '#3b82f6', backgroundColor: '#3b82f615', fill: true, tension: 0.2, borderWidth: 2 },
+      { label: 'Total Cost (COGS+OH)', data: ppCounts.map(pp => Math.round(calc(pp,0,0).totalCost)), borderColor: '#ef4444', backgroundColor: '#ef444415', fill: true, tension: 0.2, borderWidth: 2 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } } },
+    scales: { x: { title: { display: true, text: 'PP Subscribers' } }, y: { title: { display: true, text: '$/month' }, ticks: { callback: v => fmt(v) } } }
+  }
+});
+
+// ── CHART 3: CS break-even ──────────────────────────────────────────────────
+const csCounts = [1,2,3,4,5,6,7,8,10,12,15,20,25,30,40,50];
+new Chart(document.getElementById('chartCS'), {
+  type: 'line',
+  data: {
+    labels: csCounts.map(String),
+    datasets: [
+      { label: 'Revenue', data: csCounts.map(cs => cs*99), borderColor: '#f59e0b', backgroundColor: '#f59e0b15', fill: true, tension: 0.2, borderWidth: 2 },
+      { label: 'Total Cost (COGS+OH)', data: csCounts.map(cs => Math.round(calc(0,cs,0).totalCost)), borderColor: '#ef4444', backgroundColor: '#ef444415', fill: true, tension: 0.2, borderWidth: 2 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } } },
+    scales: { x: { title: { display: true, text: 'Church Starter Subscribers' } }, y: { title: { display: true, text: '$/month' }, ticks: { callback: v => fmt(v) } } }
+  }
+});
+
+// ── CHART 4: Milestones bar ──────────────────────────────────────────────────
+const milestones = [
+  { label: 'NHC Pilot\n(free)', pp:0, cs:0, cg:0 },
+  { label: '1 Ch\n+5 PP', pp:5, cs:1, cg:0 },
+  { label: '2 Ch\n+10 PP', pp:10, cs:2, cg:0 },
+  { label: '5 Ch\n+25 PP', pp:25, cs:5, cg:0 },
+  { label: '10 Ch\n+50 PP', pp:50, cs:10, cg:0 },
+  { label: '15 Ch\n+75 PP', pp:75, cs:15, cg:0 },
+  { label: '20 Ch\n+100 PP', pp:100, cs:20, cg:0 },
+  { label: '30 Ch\n+5 Growth', pp:100, cs:20, cg:5 },
+  { label: '50 Ch\n+10 Growth', pp:200, cs:40, cg:10 },
+];
+
+new Chart(document.getElementById('chartMilestones'), {
+  type: 'bar',
+  data: {
+    labels: milestones.map(m => m.label),
+    datasets: [
+      { label: 'PP Revenue', data: milestones.map(m => m.pp*PRICES.pp), backgroundColor: '#3b82f6', stack: 'rev' },
+      { label: 'Church Starter Revenue', data: milestones.map(m => m.cs*PRICES.cs), backgroundColor: '#f59e0b', stack: 'rev' },
+      { label: 'Church Growth Revenue', data: milestones.map(m => m.cg*PRICES.cg), backgroundColor: '#8b5cf6', stack: 'rev' },
+      { label: 'Total Cost (COGS + Overhead)', data: milestones.map(m => Math.round(calc(m.pp,m.cs,m.cg).totalCost)), backgroundColor: '#ef444488', borderColor: '#ef4444', borderWidth: 2, stack: 'cost' },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } } },
+    scales: { x: { stacked: true }, y: { stacked: false, title: { display: true, text: '$/month' }, ticks: { callback: v => fmt(v) } } }
+  }
+});
+
+// ── CHART 5: EL cost cliff ──────────────────────────────────────────────────
+const elUsers = [1,2,3,4,5,6,7,8,9,10,12,15,18,20,25,28,29,30,35,40,50,75,100,150];
+const elPlanColors = u => { const p = elCost(u).plan; return p==='Pro'?'#3b82f6':p==='Scale'?'#f59e0b':'#ef4444'; };
+
+new Chart(document.getElementById('chartEL'), {
+  type: 'bar',
+  data: { labels: elUsers.map(String), datasets: [{ label: 'EL Monthly Cost', data: elUsers.map(u => elCost(u).cost), backgroundColor: elUsers.map(elPlanColors) }] },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => { const u=elUsers[ctx.dataIndex]; const {cost,plan}=elCost(u); return `${plan}: ${fmt(cost)}/mo`; } } } },
+    scales: { x: { title: { display: true, text: 'Active Users' } }, y: { title: { display: true, text: 'EL Cost ($/mo)' }, ticks: { callback: v => fmt(v) } } }
+  }
+});
+
+// ── CHART 6: Mixed model ────────────────────────────────────────────────────
+const csRange = [1,2,3,4,5,6,7,8,10,12,15,20,25,30,40,50];
+const mixedP = csRange.map(cs => Math.round(calc(cs*2, cs, 0).grossProfit));
+new Chart(document.getElementById('chartMixed'), {
+  type: 'bar',
+  data: { labels: csRange.map(cs => `${cs}Ch/${cs*2}PP`), datasets: [{ label: 'Net Profit', data: mixedP, backgroundColor: mixedP.map(p => p>50?'#22c55e':p>=0?'#86efac':p>-100?'#fca5a5':'#dc2626') }] },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `Profit: ${fmt(ctx.parsed.y)}` } } },
+    scales: { x: { ticks: { font: { size: 9 } } }, y: { title: { display: true, text: 'Net Profit ($)' }, ticks: { callback: v => fmt(v) } } }
+  }
+});
+
+// ── CHART 7: Cost stack ──────────────────────────────────────────────────────
+const stackMilestones = [
+  { label: '1 Ch+5PP', pp:5, cs:1, cg:0 },
+  { label: '3 Ch+15PP', pp:15, cs:3, cg:0 },
+  { label: '5 Ch+25PP', pp:25, cs:5, cg:0 },
+  { label: '10 Ch+50PP', pp:50, cs:10, cg:0 },
+  { label: '15 Ch+75PP', pp:75, cs:15, cg:0 },
+  { label: '20 Ch+100PP', pp:100, cs:20, cg:0 },
+  { label: '30 Ch+150PP', pp:150, cs:30, cg:0 },
+  { label: '50 Ch+200PP', pp:200, cs:50, cg:0 },
+];
+
+new Chart(document.getElementById('chartStack'), {
+  type: 'bar',
+  data: {
+    labels: stackMilestones.map(m => m.label),
+    datasets: [
+      { label: 'ElevenLabs (COGS)', data: stackMilestones.map(m => elCost(m.pp*ACTIVE_PER.pp+m.cs*ACTIVE_PER.cs).cost), backgroundColor: '#7c4f2a', stack: 'cost' },
+      { label: 'Fixed COGS', data: stackMilestones.map(() => FIXED_COGS), backgroundColor: '#a07850', stack: 'cost' },
+      { label: 'Stripe Fees', data: stackMilestones.map(m => { const r=calc(m.pp,m.cs,m.cg); return Math.round(r.stripe); }), backgroundColor: '#c8a882', stack: 'cost' },
+      { label: 'Overhead', data: stackMilestones.map(() => OVERHEAD), backgroundColor: '#e5d5c0', stack: 'cost' },
+      { label: 'Gross Profit', data: stackMilestones.map(m => Math.max(0, Math.round(calc(m.pp,m.cs,m.cg).grossProfit))), backgroundColor: '#22c55e88', borderColor: '#22c55e', borderWidth: 1, stack: 'profit' },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } } },
+    scales: { x: { stacked: true }, y: { stacked: true, title: { display: true, text: '$/month' }, ticks: { callback: v => fmt(v) } } }
+  }
+});
+
+// ── MATRIX ──────────────────────────────────────────────────────────────────
+const ppVals = [0,5,10,15,20,25,30,40,50,75,100,150,200];
+const csVals = [0,1,2,3,4,5,6,7,8,10,12,15,20];
+let mhtml = '<thead><tr><th class="row-header">CS↓ PP→</th>';
+ppVals.forEach(pp => mhtml += `<th class="col-header">${pp}</th>`);
+mhtml += '</tr></thead><tbody>';
+csVals.forEach(cs => {
+  mhtml += `<tr><th class="row-header">${cs} Ch</th>`;
+  ppVals.forEach(pp => {
+    const p = Math.round(calc(pp,cs,0).grossProfit);
+    const cls = p>50?'profit-cell':p>=0?'near-cell':p>-200?'loss-cell':'big-loss-cell';
+    mhtml += `<td class="${cls}">${p>=0?'+':''}${fmt(p)}</td>`;
+  });
+  mhtml += '</tr>';
+});
+mhtml += '</tbody>';
+document.getElementById('matrixTable').innerHTML = mhtml;
+
+// ── PP TABLE ────────────────────────────────────────────────────────────────
+const ppRows = [1,2,3,5,7,8,10,12,15,20,25,28,29,30,35,40,50,75,100];
+let ppHtml = '<thead><tr><th>PP Subs</th><th>Revenue</th><th>EL Plan</th><th>EL Cost</th><th>COGS Fixed</th><th>Overhead</th><th>Stripe</th><th>Total Cost</th><th>Gross Profit</th><th>Tax Reserve (27%)</th><th>Net Take-Home</th></tr></thead><tbody>';
+ppRows.forEach((pp, i) => {
+  const { rev, totalCost, el, plan, stripe, grossProfit, taxReserve, netProfit } = calc(pp,0,0);
+  const prevPlan = i > 0 ? elCost(ppRows[i-1]).plan : plan;
+  const jump = plan !== prevPlan;
+  const profCls = grossProfit > 0 ? 'profit' : 'loss';
+  const netCls = netProfit > 0 ? 'profit' : 'loss';
+  ppHtml += `<tr class="${jump?'plan-jump':''}">
+    <td>${pp}</td><td>${fmt(rev)}</td>
+    <td>${plan}${jump?' ⚡':''}</td><td>${fmt(el)}</td>
+    <td>${fmt(FIXED_COGS)}</td><td>${fmt(OVERHEAD)}</td>
+    <td>${fmt(stripe)}</td><td>${fmt(totalCost)}</td>
+    <td class="${profCls}">${fmtSigned(grossProfit)}</td>
+    <td style="color:#c2410c">${grossProfit>0?fmt(taxReserve):'—'}</td>
+    <td class="${netCls}">${fmtSigned(netProfit)}</td>
+  </tr>`;
+});
+ppHtml += '</tbody>';
+document.getElementById('ppTable').innerHTML = ppHtml;
+
+// ── CS TABLE ────────────────────────────────────────────────────────────────
+const csRows = [1,2,3,4,5,6,7,8,10,12,15,20,25,30,40,50];
+let csHtml = '<thead><tr><th>CS Churches</th><th>Revenue</th><th>Active Users</th><th>EL Plan</th><th>EL Cost</th><th>Overhead</th><th>Total Cost</th><th>Gross Profit</th><th>Tax Reserve</th><th>Net Take-Home</th></tr></thead><tbody>';
+csRows.forEach((cs, i) => {
+  const { rev, totalCost, el, plan, grossProfit, taxReserve, netProfit } = calc(0,cs,0);
+  const prevPlan = i > 0 ? elCost(csRows[i-1]*ACTIVE_PER.cs).plan : plan;
+  const jump = plan !== prevPlan;
+  const profCls = grossProfit > 0 ? 'profit' : grossProfit > -50 ? 'break-even' : 'loss';
+  csHtml += `<tr class="${jump?'plan-jump':''}">
+    <td>${cs}</td><td>${fmt(rev)}</td><td>${cs*ACTIVE_PER.cs}</td>
+    <td>${plan}${jump?' ⚡':''}</td><td>${fmt(el)}</td>
+    <td>${fmt(OVERHEAD)}</td><td>${fmt(totalCost)}</td>
+    <td class="${profCls}">${fmtSigned(grossProfit)}</td>
+    <td style="color:#c2410c">${grossProfit>0?fmt(taxReserve):'—'}</td>
+    <td class="${profCls}">${fmtSigned(netProfit)}</td>
+  </tr>`;
+});
+csHtml += '</tbody>';
+document.getElementById('csTable').innerHTML = csHtml;
+</script>
+</body>
+</html>

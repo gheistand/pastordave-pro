@@ -36,7 +36,11 @@ var notesAutoSaveTimer = null;
 
   var startBtn = document.getElementById('start-btn');
   if (startBtn) {
-    startBtn.addEventListener('click', startConversation);
+    startBtn.addEventListener('click', function() {
+      var voiceHelper = document.getElementById('voice-helper');
+      if (voiceHelper) voiceHelper.style.display = 'none';
+      startConversation();
+    });
   }
 })();
 

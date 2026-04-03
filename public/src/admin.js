@@ -421,7 +421,7 @@
     }
   }
 
-  // ── Stats ─────────────────────────────────────────────────────────────────
+  // ── Insights ──────────────────────────────────────────────────────────────
   async function loadStats() {
     setLoading('stats-content');
     try {
@@ -577,6 +577,6 @@
     else if (tabId === 'church-settings') loadChurchSettings();
   }
 
-  // Activate default tab
-  activateTab('visitors');
+  // Activate default tab (Insights first)
+  activateTab('stats');
 })();

@@ -42,6 +42,19 @@ var notesAutoSaveTimer = null;
       startConversation();
     });
   }
+
+  // Prompt chips — clicking starts the conversation with that prompt as the opening topic
+  document.querySelectorAll('.prompt-chip').forEach(function(chip) {
+    chip.addEventListener('click', function() {
+      var prompt = chip.dataset.prompt;
+      if (!prompt) return;
+      var voiceHelper = document.getElementById('voice-helper');
+      if (voiceHelper) voiceHelper.style.display = 'none';
+      // Store the pending prompt so startElevenLabsConversation can use it
+      window._pendingChipPrompt = prompt;
+      startConversation();
+    });
+  });
 })();
 
 async function loadSubscriptionStatus() {
@@ -209,6 +222,14 @@ async function startElevenLabsConversation(signedUrl, container, startBtn, userI
         console.log('SDK: Connected to Pastor Dave');
         statusEl.textContent = 'Connected - speak to Pastor Dave';
         visualizer.style.background = '#28a745';
+        // If user clicked a prompt chip, send it as the opening message
+        if (window._pendingChipPrompt) {
+          var chipPrompt = window._pendingChipPrompt;
+          window._pendingChipPrompt = null;
+          setTimeout(function() {
+            try { conversation.sendUserMessage(chipPrompt); } catch(e) { console.warn('chip prompt send failed', e); }
+          }, 800);
+        }
       },
 
       onDisconnect: function() {

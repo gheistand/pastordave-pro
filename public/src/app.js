@@ -179,7 +179,11 @@ async function startElevenLabsConversation(signedUrl, container, startBtn, userI
 
   muteBtn.addEventListener('click', function() {
     isMuted = !isMuted;
-    // Mute at the browser MediaStream track level — most reliable approach
+    // Use the SDK's built-in mute — this mutes the actual SDK audio stream
+    if (conversation && conversation.setMuted) {
+      conversation.setMuted(isMuted);
+    }
+    // Also disable MediaStream tracks as a belt-and-suspenders backup
     if (micStream) {
       micStream.getAudioTracks().forEach(function(track) {
         track.enabled = !isMuted;

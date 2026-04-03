@@ -485,7 +485,7 @@
   <div id="status-bar">Loading…</div>
 
   <main>
-    <h1>Talk with Pastor Dave</h1>
+    <h1>Talk with Pastor Dave<a href="#" id="about-pastor-dave-link" style="font-size:0.8rem;color:#a07850;text-decoration:none;margin-left:0.75rem;vertical-align:middle;" onclick="document.getElementById('about-pastor-dave-modal').style.display='flex';return false;">ℹ️ About</a></h1>
     <p class="tagline">Ask theological questions, practice evangelism, or seek spiritual guidance.</p>
 
     <div class="app-tab-bar">
@@ -808,6 +808,22 @@
         }
       });
     });
+  });
+  </script>
+
+  <!-- About Pastor Dave Modal -->
+  <div id="about-pastor-dave-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
+    <div style="background:#fff;border-radius:14px;padding:2rem;max-width:480px;width:100%;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+      <button onclick="document.getElementById('about-pastor-dave-modal').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.25rem;cursor:pointer;color:#999;">✕</button>
+      <h2 style="font-family:'Lora',serif;color:#7c4f2a;margin:0 0 1rem;font-size:1.3rem;">About Pastor Dave</h2>
+      <p style="font-size:0.9rem;color:#555;line-height:1.7;margin-bottom:0.75rem;">Pastor Dave is an AI-powered pastoral companion designed to help you grow in your faith between Sundays. He is grounded in Scripture, trained on your church's sermons and teaching, and shaped by Wesleyan theology.</p>
+      <p style="font-size:0.9rem;color:#555;line-height:1.7;margin-bottom:0.75rem;">Pastor Dave is designed to <strong>support your pastor, not replace them</strong>. He can help you understand Scripture, reflect on sermons, follow a Bible reading plan, and think through questions of faith.</p>
+      <p style="font-size:0.85rem;color:#888;line-height:1.6;margin-bottom:0;padding:0.75rem;background:#f8f5f0;border-radius:8px;border-left:3px solid #d4b896;">For urgent personal matters, mental health crises, or situations requiring real pastoral care, please contact your pastor or a licensed counselor directly.</p>
+    </div>
+  </div>
+  <script>
+  document.getElementById('about-pastor-dave-modal').addEventListener('click', function(e) {
+    if (e.target === this) this.style.display = 'none';
   });
   </script>
 </body>

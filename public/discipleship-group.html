@@ -406,6 +406,20 @@
     </div>
 
     <div id="app-content" style="display:none;">
+      <div id="workflow-banner" style="background:#f8f5f0;border:1px solid #e5e0d8;border-radius:10px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <span style="font-size:0.82rem;font-weight:700;color:#7c4f2a;white-space:nowrap;">How it works:</span>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;font-size:0.82rem;color:#555;">
+          <span>1️⃣ <strong>Set meeting date</strong></span>
+          <span style="color:#ccc;">→</span>
+          <span>2️⃣ <strong>Review sermon</strong></span>
+          <span style="color:#ccc;">→</span>
+          <span>3️⃣ <strong>Generate guide</strong></span>
+          <span style="color:#ccc;">→</span>
+          <span>4️⃣ <strong>Build agenda</strong></span>
+          <span style="color:#ccc;">→</span>
+          <span>5️⃣ <strong>Save or print</strong></span>
+        </div>
+      </div>
       <div class="tab-bar">
         <button class="tab-btn active" data-tab="guide-generator">Discussion Guide</button>
         <button class="tab-btn" data-tab="agenda-builder">Agenda Builder</button>
@@ -661,6 +675,9 @@
             <input type="checkbox" id="settings-use-hhh" checked />
             <label for="settings-use-hhh">Use Head/Heart/Hands (HHH) framework for discussion guides</label>
           </div>
+          <p style="font-size:0.82rem;color:#888;margin-top:0.25rem;font-style:italic;margin-left:1.75rem;">
+            <strong>Head:</strong> Know the truth &nbsp;·&nbsp; <strong>Heart:</strong> Feel its weight &nbsp;·&nbsp; <strong>Hands:</strong> Live it out
+          </p>
         </div>
 
         <button class="btn btn-primary" onclick="DG.saveSettings()">Save Settings</button>

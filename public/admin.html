@@ -364,6 +364,10 @@
       .form-grid { grid-template-columns: 1fr; }
       .notes-cell { max-width: 130px; }
     }
+    .summary-card { background: #fff; border: 1px solid #e5e0d8; border-radius: 10px; padding: 1.1rem 1.25rem; text-align: center; }
+    .summary-label { font-size: 0.78rem; color: #999; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; }
+    .summary-value { font-size: 2rem; font-weight: 700; color: #7c4f2a; line-height: 1; }
+    .summary-sub { font-size: 0.75rem; color: #bbb; margin-top: 0.25rem; }
   </style>
 </head>
 <body>
@@ -466,6 +470,28 @@
     <div class="tab-panel active" id="panel-stats">
       <h2>Insights</h2>
       <p class="tab-intro">Monitor congregation engagement, active conversations, and platform usage for your church.</p>
+      <div id="admin-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;">
+        <div class="summary-card">
+          <div class="summary-label">New Visitors</div>
+          <div class="summary-value" id="summary-new-visitors">—</div>
+          <div class="summary-sub">this week</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Open Alerts</div>
+          <div class="summary-value" id="summary-open-alerts">—</div>
+          <div class="summary-sub">needs attention</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Sermons</div>
+          <div class="summary-value" id="summary-sermons">—</div>
+          <div class="summary-sub">loaded</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Active Members</div>
+          <div class="summary-value" id="summary-active-members">—</div>
+          <div class="summary-sub">this month</div>
+        </div>
+      </div>
       <div id="stats-content"><div class="loading">Loading…</div></div>
     </div>
 

@@ -81,7 +81,21 @@
     } catch { /* non-fatal */ }
   }
 
+  async function loadSummaryCards() {
+    try {
+      const res = await apiFetch('/api/admin/stats');
+      if (!res.ok) return;
+      const s = await res.json();
+      const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val != null ? val : '—'; };
+      el('summary-new-visitors', s.visitors);
+      el('summary-open-alerts', s.alerts_open);
+      el('summary-sermons', s.sermons);
+      el('summary-active-members', s.active_members != null ? s.active_members : s.users_pro);
+    } catch { /* non-fatal */ }
+  }
+
   loadBranding();
+  loadSummaryCards();
 
   // ── Tab switching ─────────────────────────────────────────────────────────
   const tabs = document.querySelectorAll('.tab-btn');
@@ -428,6 +442,12 @@
       const res = await apiFetch('/api/admin/stats');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const s = await res.json();
+
+      // Populate summary cards
+      document.getElementById('summary-new-visitors').textContent = s.visitors != null ? s.visitors : '—';
+      document.getElementById('summary-open-alerts').textContent = s.alerts_open != null ? s.alerts_open : '—';
+      document.getElementById('summary-sermons').textContent = s.sermons != null ? s.sermons : '—';
+      document.getElementById('summary-active-members').textContent = s.active_members != null ? s.active_members : (s.users_pro != null ? s.users_pro : '—');
 
       document.getElementById('stats-content').innerHTML = `
         <div class="stats-grid">

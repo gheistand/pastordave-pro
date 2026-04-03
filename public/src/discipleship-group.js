@@ -324,6 +324,10 @@ var DG = (function () {
     var SECTION_CLASSES = { HEAD: 'head', HEART: 'heart', HANDS: 'hands' };
     var SECTION_EMOJIS = { HEAD: '🧠', HEART: '❤️', HANDS: '🙌' };
 
+    if ((g.sections || []).some(function(s) { return SECTION_CLASSES[s.type]; })) {
+      html += '<p style="font-size:0.82rem;color:#888;margin-bottom:0.75rem;font-style:italic;"><strong>Head:</strong> Know the truth &nbsp;·&nbsp; <strong>Heart:</strong> Feel its weight &nbsp;·&nbsp; <strong>Hands:</strong> Live it out</p>';
+    }
+
     (g.sections || []).forEach(function (section) {
       var cls = SECTION_CLASSES[section.type] || 'head';
       var emoji = SECTION_EMOJIS[section.type] || '';
